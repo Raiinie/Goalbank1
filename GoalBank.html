@@ -1,0 +1,1826 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoalBank · 学生财务目标达成平台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{
+  --dark:#06091a;--dark2:#0f172a;--dark3:#1e293b;
+  --blue:#3b82f6;--blue2:#60a5fa;--lblue:rgba(59,130,246,.1);
+  --green:#10b981;--lgreen:rgba(16,185,129,.1);
+  --amber:#f59e0b;--lamber:rgba(245,158,11,.1);
+  --violet:#8b5cf6;--red:#ef4444;--cyan:#06b6d4;--pink:#ec4899;
+  --white:#f8fafc;--ink:#0f172a;--muted:#64748b;
+  --border:#e2e8f0;--card:#ffffff;
+  --font-display:'Fraunces','Noto Serif SC',serif;
+  --font-serif:'Noto Serif SC','Fraunces',serif;
+  --font-body:'Inter','Noto Sans SC',sans-serif;
+  --font-mono:'Space Mono',monospace;
+  --font-brush:'Ma Shan Zheng','Noto Serif SC',cursive;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--white);color:var(--ink);font-size:15px;line-height:1.75;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+::selection{background:rgba(59,130,246,.2);}
+
+/* VIEW SYSTEM */
+.view{display:none;min-height:100vh;}
+.view.active{display:block;animation:fadeIn .45s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+
+/* ─── HERO (LANDING) ─── */
+#v-hero{background:var(--dark);color:white;position:relative;overflow:hidden;}
+#v-hero::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 80% at 70% 30%,rgba(59,130,246,.15) 0%,transparent 60%),
+             radial-gradient(ellipse 40% 60% at 20% 70%,rgba(139,92,246,.08) 0%,transparent 50%);pointer-events:none;}
+.hero-grid{position:absolute;inset:0;opacity:.04;
+  background-image:linear-gradient(rgba(59,130,246,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.5) 1px,transparent 1px);
+  background-size:56px 56px;}
+.hero-inner{max-width:1000px;margin:0 auto;padding:64px 40px 80px;position:relative;}
+.hero-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:56px;}
+.hero-logo{font-family:var(--font-display);font-weight:900;font-size:22px;letter-spacing:-.5px;}
+.hero-logo span{color:var(--blue2);}
+.hero-login-link{font-size:13px;color:#94a3b8;cursor:pointer;border:1px solid rgba(255,255,255,.15);padding:8px 18px;border-radius:8px;transition:all .2s;background:none;font-family:var(--font-body);}
+.hero-login-link:hover{border-color:var(--blue);color:white;}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);padding:5px 14px;border-radius:3px;margin-bottom:24px;}
+.hero-badge span{font-size:10px;letter-spacing:2.5px;font-weight:700;color:var(--blue2);font-family:var(--font-mono);}
+.blink{width:5px;height:5px;border-radius:50%;background:var(--blue);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+.hero-title{font-family:var(--font-serif);font-size:54px;font-weight:900;line-height:1.12;margin-bottom:18px;letter-spacing:-1px;}
+.hero-title em{color:var(--blue2);font-style:normal;}
+.hero-sub{color:#94a3b8;font-size:16px;max-width:540px;margin-bottom:24px;line-height:1.9;}
+.hero-data{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:40px;}
+.hd{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px 16px;font-size:12px;color:#94a3b8;}
+.hd strong{color:white;display:block;font-family:var(--font-mono);font-size:16px;font-weight:700;}
+.hero-cta{display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:white;padding:15px 34px;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;border:none;transition:all .2s;box-shadow:0 4px 24px rgba(59,130,246,.35);font-family:var(--font-body);}
+.hero-cta:hover{background:#2563eb;transform:translateY(-1px);box-shadow:0 6px 32px rgba(59,130,246,.45);}
+.hero-theories{margin-top:56px;display:flex;gap:10px;flex-wrap:wrap;}
+.theory-tag{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:6px 12px;font-size:11px;color:#94a3b8;}
+.theory-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+
+/* ─── AUTH ─── */
+#v-auth{background:var(--dark);color:white;display:none;min-height:100vh;position:relative;overflow:hidden;}
+#v-auth.active{display:flex;align-items:center;justify-content:center;}
+#v-auth::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 50% 30%,rgba(59,130,246,.12),transparent 60%);}
+.auth-card{background:white;color:var(--ink);border-radius:22px;width:92%;max-width:420px;padding:36px;box-shadow:0 30px 80px rgba(0,0,0,.5);position:relative;z-index:2;}
+.auth-brand{font-family:var(--font-display);font-weight:900;font-size:26px;text-align:center;margin-bottom:6px;letter-spacing:-.5px;}
+.auth-brand span{color:var(--blue);}
+.auth-tag{text-align:center;color:var(--muted);font-size:13px;margin-bottom:26px;}
+.auth-tabs{display:flex;background:#f1f5f9;border-radius:10px;padding:4px;margin-bottom:22px;}
+.auth-tab{flex:1;text-align:center;padding:9px;font-size:14px;font-weight:600;color:var(--muted);border-radius:7px;cursor:pointer;transition:all .15s;}
+.auth-tab.active{background:white;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.auth-field{margin-bottom:16px;}
+.auth-field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:7px;font-family:var(--font-mono);letter-spacing:.5px;}
+.auth-field input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:13px 15px;font-size:15px;outline:none;font-family:var(--font-body);transition:border-color .2s;background:#fafafa;}
+.auth-field input:focus{border-color:var(--blue);background:white;}
+.auth-btn{width:100%;background:linear-gradient(135deg,var(--blue),var(--violet));color:white;border:none;border-radius:12px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;font-family:var(--font-body);margin-top:6px;transition:transform .15s,box-shadow .2s;box-shadow:0 4px 18px rgba(99,102,241,.3);}
+.auth-btn:hover{transform:translateY(-1px);box-shadow:0 6px 26px rgba(99,102,241,.4);}
+.auth-msg{font-size:13px;text-align:center;margin-top:14px;min-height:18px;}
+.auth-msg.err{color:var(--red);}
+.auth-msg.ok{color:var(--green);}
+.auth-foot{margin-top:22px;padding-top:18px;border-top:1px solid var(--border);text-align:center;display:flex;justify-content:space-between;align-items:center;}
+.auth-foot a{font-size:12px;color:var(--muted);cursor:pointer;text-decoration:none;}
+.auth-foot a:hover{color:var(--blue);}
+.auth-note{font-size:11px;color:#94a3b8;text-align:center;margin-top:14px;line-height:1.6;}
+
+/* ─── APP SHELL ─── */
+#v-app{display:none;min-height:100vh;background:#f1f5f9;}
+#v-app.active{display:flex;}
+.sidebar{width:280px;flex-shrink:0;background:var(--dark);color:white;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:hidden;}
+.sb-head{padding:24px 22px 16px;border-bottom:1px solid rgba(255,255,255,.07);}
+.sb-logo{font-family:var(--font-display);font-weight:900;font-size:20px;letter-spacing:-.5px;}
+.sb-logo span{color:var(--blue2);}
+.sb-logo small{display:block;font-family:var(--font-mono);font-size:9px;letter-spacing:2px;color:#64748b;font-weight:400;margin-top:2px;}
+.sb-goals{flex:1;overflow-y:auto;padding:16px 14px;}
+.sb-goals::-webkit-scrollbar{width:6px;}
+.sb-goals::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;}
+.sb-section-label{font-size:10px;letter-spacing:1.5px;color:#475569;font-family:var(--font-mono);font-weight:700;margin:4px 8px 12px;text-transform:uppercase;}
+.goal-tab{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;cursor:pointer;margin-bottom:6px;transition:background .15s;border:1px solid transparent;}
+.goal-tab:hover{background:rgba(255,255,255,.05);}
+.goal-tab.active{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.3);}
+.gt-ring{width:38px;height:38px;flex-shrink:0;position:relative;}
+.gt-emoji{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.gt-info{flex:1;min-width:0;}
+.gt-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.gt-meta{font-size:11px;color:#64748b;font-family:var(--font-mono);margin-top:1px;}
+.sb-new{margin:6px 8px;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border:1.5px dashed rgba(255,255,255,.15);border-radius:12px;color:#94a3b8;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;background:none;width:calc(100% - 16px);font-family:var(--font-body);}
+.sb-new:hover{border-color:var(--blue);color:var(--blue2);}
+.sb-foot{padding:14px;border-top:1px solid rgba(255,255,255,.07);}
+.sb-user{display:flex;align-items:center;gap:10px;padding:8px;}
+.sb-avatar{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--violet));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;text-transform:uppercase;}
+.sb-uinfo{flex:1;min-width:0;}
+.sb-uemail{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#cbd5e1;}
+.sb-logout{font-size:11px;color:#64748b;cursor:pointer;}
+.sb-logout:hover{color:var(--red);}
+.main{flex:1;min-width:0;overflow-y:auto;height:100vh;}
+.mobile-bar{display:none;}
+
+/* ─── WIZARD ─── */
+.wiz-top{background:linear-gradient(180deg,var(--dark) 0%,var(--dark2) 55%,#f1f5f9 100%);padding:40px 40px 80px;}
+.step-indicator{display:flex;align-items:center;gap:8px;margin:0 auto 30px;max-width:560px;}
+.step{display:flex;align-items:center;gap:6px;font-size:12px;color:#94a3b8;white-space:nowrap;}
+.step.active{color:var(--blue2);}
+.step.done{color:var(--green);}
+.step-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:1.5px solid currentColor;font-family:var(--font-mono);flex-shrink:0;}
+.step.done .step-num{background:var(--green);border-color:var(--green);color:white;}
+.step.active .step-num{background:var(--blue);border-color:var(--blue);color:white;}
+.step-line{flex:1;height:1px;background:rgba(255,255,255,.12);}
+.wiz-title{font-family:var(--font-serif);font-size:32px;font-weight:900;color:white;text-align:center;margin-bottom:8px;letter-spacing:-.5px;}
+.wiz-sub{color:#94a3b8;text-align:center;font-size:14px;margin-bottom:0;}
+.wiz-body{max-width:620px;margin:-44px auto 0;padding:0 20px 60px;}
+.goal-card{background:white;border-radius:20px;padding:34px;box-shadow:0 24px 64px rgba(0,0,0,.16);}
+.gc-label{font-size:11px;letter-spacing:1.5px;font-weight:700;color:var(--muted);font-family:var(--font-mono);margin-bottom:10px;}
+.goal-textarea{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:16px;font-size:15px;font-family:var(--font-body);resize:none;outline:none;line-height:1.75;color:var(--ink);transition:border-color .2s;background:#fafafa;}
+.goal-textarea:focus{border-color:var(--blue);background:white;}
+.goal-textarea::placeholder{color:#cbd5e1;}
+.cats{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0 6px;}
+.cat{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);font-size:12px;cursor:pointer;background:white;color:var(--muted);transition:all .15s;font-family:var(--font-body);}
+.cat:hover{border-color:var(--blue);color:var(--blue);}
+.cat.selected{background:var(--blue);border-color:var(--blue);color:white;}
+.amount-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0;}
+.input-group{display:flex;flex-direction:column;gap:8px;}
+.input-wrap{position:relative;}
+.input-wrap input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;font-size:15px;font-family:var(--font-body);outline:none;color:var(--ink);transition:border-color .2s;background:#fafafa;}
+.input-wrap input:focus{border-color:var(--blue);background:white;}
+.input-prefix{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;}
+.input-wrap.prefixed input{padding-left:28px;}
+/* duration with unit */
+.duration-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:stretch;}
+.unit-toggle{display:flex;background:#f1f5f9;border-radius:10px;padding:4px;}
+.unit-opt{padding:8px 14px;font-size:13px;font-weight:600;color:var(--muted);border-radius:7px;cursor:pointer;transition:all .15s;display:flex;align-items:center;white-space:nowrap;}
+.unit-opt.active{background:white;color:var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.submit-btn{width:100%;background:linear-gradient(135deg,var(--blue),#4f46e5);color:white;border:none;border-radius:12px;padding:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:transform .15s,box-shadow .2s;box-shadow:0 4px 20px rgba(59,130,246,.3);margin-top:8px;}
+.submit-btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(59,130,246,.4);}
+.submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+
+/* AI LOADING */
+.ai-loading{display:none;text-align:center;padding:40px 20px 8px;}
+.ai-loading.show{display:block;}
+.ai-spinner{width:46px;height:46px;border:3px solid rgba(59,130,246,.2);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ai-status{color:var(--muted);font-size:13px;}
+
+/* WIZARD RESULTS */
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;cursor:pointer;margin-bottom:22px;background:none;border:none;font-family:var(--font-body);padding:0;}
+.back-btn:hover{color:var(--blue);}
+.result-hero{background:linear-gradient(135deg,var(--dark),#1e1b4b);border-radius:20px;padding:32px;color:white;margin-bottom:18px;}
+.rh-label{font-size:10px;letter-spacing:2px;font-weight:700;color:#94a3b8;font-family:var(--font-mono);margin-bottom:10px;}
+.rh-goal{font-family:var(--font-serif);font-size:24px;font-weight:900;margin-bottom:20px;line-height:1.3;}
+.rh-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.rhs{background:rgba(255,255,255,.07);border-radius:10px;padding:14px;text-align:center;}
+.rhs-num{font-family:var(--font-mono);font-size:21px;font-weight:700;color:var(--blue2);line-height:1;}
+.rhs-label{font-size:11px;color:#94a3b8;margin-top:4px;}
+.principle-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.3);border-radius:6px;padding:6px 12px;font-size:12px;color:#c4b5fd;margin-top:16px;line-height:1.5;}
+.section-card{background:white;border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;}
+.sc-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.sc-icon{font-size:18px;}
+.phase-list{display:flex;flex-direction:column;gap:10px;}
+.phase-item{display:flex;gap:12px;align-items:flex-start;}
+.phase-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:var(--font-mono);flex-shrink:0;color:white;}
+.phase-text{font-size:13px;color:#475569;line-height:1.65;padding-top:4px;}
+.steps-list{display:flex;flex-direction:column;gap:8px;}
+.step-item{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;background:#f8fafc;border-radius:8px;font-size:13px;color:var(--ink);line-height:1.6;}
+.step-item::before{content:'→';color:var(--blue);flex-shrink:0;margin-top:1px;}
+.motivation-box{background:linear-gradient(135deg,rgba(59,130,246,.06),rgba(139,92,246,.06));border:1px solid rgba(59,130,246,.15);border-radius:12px;padding:20px;font-size:15px;color:var(--ink);line-height:1.75;text-align:center;font-family:var(--font-serif);font-weight:500;}
+.next-btn{width:100%;background:var(--green);color:white;border:none;border-radius:12px;padding:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:var(--font-body);margin-top:12px;transition:all .2s;}
+.next-btn:hover{background:#059669;transform:translateY(-1px);}
+
+/* COMMITMENT */
+.commitment-hero{background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:20px;padding:28px;color:white;margin-bottom:18px;text-align:center;}
+.ch-title{font-family:var(--font-serif);font-size:22px;font-weight:900;margin-bottom:8px;}
+.ch-sub{color:#94a3b8;font-size:13px;line-height:1.7;}
+.ch-icon{font-size:40px;margin-bottom:12px;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:16px;background:white;border:1.5px solid var(--border);border-radius:12px;margin-bottom:12px;cursor:pointer;transition:border-color .2s;gap:14px;}
+.toggle-row:hover{border-color:var(--blue);}
+.tr-left{flex:1;}
+.tr-title{font-size:14px;font-weight:600;color:var(--ink);}
+.tr-sub{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5;}
+.tr-be{font-size:10px;color:var(--violet);font-family:var(--font-mono);margin-top:4px;letter-spacing:.5px;}
+.toggle{width:44px;height:24px;border-radius:12px;background:#e2e8f0;position:relative;transition:background .2s;flex-shrink:0;cursor:pointer;}
+.toggle.on{background:var(--blue);}
+.toggle-dot{width:18px;height:18px;border-radius:50%;background:white;position:absolute;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.toggle.on .toggle-dot{transform:translateX(20px);}
+.cooling-display{display:none;background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:14px 18px;margin-bottom:12px;font-size:13px;color:#475569;line-height:1.6;}
+.cooling-display.show{display:block;}
+.social-share{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:12px;padding:18px;margin:16px 0;}
+.ss-title{font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px;}
+.ss-text{font-size:12px;color:#475569;line-height:1.6;}
+.impulse-warning{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:12px;padding:18px;margin-bottom:16px;}
+.iw-title{font-size:13px;font-weight:700;color:var(--amber);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.iw-text{font-size:12px;color:#475569;line-height:1.6;}
+.start-btn{width:100%;background:linear-gradient(135deg,var(--blue),var(--violet));color:white;border:none;border-radius:12px;padding:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:var(--font-body);margin-top:8px;transition:transform .15s,box-shadow .2s;box-shadow:0 4px 20px rgba(99,102,241,.3);}
+.start-btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(99,102,241,.4);}
+
+/* ─── DASHBOARD ─── */
+.dash-header{background:linear-gradient(135deg,var(--dark),#1e1b4b);padding:26px 32px 56px;color:white;position:relative;}
+.dh-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;gap:12px;flex-wrap:wrap;}
+.dh-brand{font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--blue2);letter-spacing:1px;}
+.dh-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.dh-act{font-size:12px;color:#cbd5e1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 13px;cursor:pointer;transition:all .15s;font-family:var(--font-body);display:inline-flex;align-items:center;gap:5px;}
+.dh-act:hover{background:rgba(255,255,255,.14);color:white;}
+.dh-act.danger:hover{background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.4);color:#fca5a5;}
+.dh-goal{font-family:var(--font-serif);font-size:22px;font-weight:900;margin-bottom:4px;line-height:1.3;}
+.dh-sub{font-size:13px;color:#94a3b8;}
+.dash-content{max-width:680px;margin:-32px auto 0;padding:0 20px 48px;position:relative;}
+
+.card{background:white;border-radius:18px;padding:24px;margin-bottom:16px;box-shadow:0 4px 24px rgba(0,0,0,.05);}
+.progress-ring-card{text-align:center;}
+.ring-wrap{position:relative;width:164px;height:164px;margin:0 auto 20px;}
+.ring-svg{transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:#f1f5f9;stroke-width:12;}
+.ring-fill{fill:none;stroke:var(--blue);stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset 1s ease;}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-pct{font-family:var(--font-mono);font-size:34px;font-weight:700;color:var(--ink);line-height:1;}
+.ring-label{font-size:11px;color:var(--muted);margin-top:2px;}
+.progress-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.pstat{text-align:center;}
+.pstat-num{font-family:var(--font-mono);font-size:18px;font-weight:700;color:var(--ink);}
+.pstat-label{font-size:11px;color:var(--muted);}
+.dash-btn-row{margin-top:18px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.btn-primary{background:var(--blue);color:white;border:none;border-radius:9px;padding:11px 22px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:background .15s;}
+.btn-primary:hover{background:#2563eb;}
+.btn-ghost{border:1.5px solid var(--border);background:white;border-radius:9px;padding:11px 20px;font-size:13px;color:var(--muted);cursor:pointer;font-family:var(--font-body);transition:all .15s;}
+.btn-ghost:hover{border-color:var(--red);color:var(--red);}
+
+.phase-indicator{display:flex;align-items:center;gap:12px;}
+.phase-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.phase-info{flex:1;}
+.phase-stage{font-size:12px;color:var(--muted);font-family:var(--font-mono);}
+.phase-msg{font-size:14px;font-weight:600;color:var(--ink);margin-top:2px;line-height:1.5;}
+
+/* CHECK-IN + MOOD/STICKERS */
+.cc-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.cc-streak{font-size:12px;color:var(--amber);font-weight:600;font-family:var(--font-mono);}
+.mood-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:7px;margin-bottom:14px;}
+.mood-btn{aspect-ratio:1;border-radius:10px;border:1.5px solid var(--border);background:white;font-size:20px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;}
+.mood-btn:hover{border-color:var(--blue);background:rgba(59,130,246,.05);transform:translateY(-2px);}
+.mood-btn.selected{border-color:var(--blue);background:rgba(59,130,246,.12);transform:translateY(-2px);}
+.checkin-amt-row{display:flex;gap:8px;margin-bottom:10px;}
+.save-input{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-size:13px;outline:none;font-family:var(--font-body);color:var(--ink);}
+.save-input:focus{border-color:var(--blue);}
+.save-input.amt{max-width:140px;}
+.checkin-btn{width:100%;background:var(--blue);color:white;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:background .2s;}
+.checkin-btn:hover{background:#2563eb;}
+
+/* CALENDAR */
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.cal-nav{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:white;cursor:pointer;color:var(--muted);font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.cal-nav:hover{border-color:var(--blue);color:var(--blue);}
+.cal-month{font-size:14px;font-weight:700;font-family:var(--font-mono);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+.cal-dow{text-align:center;font-size:10px;color:var(--muted);font-weight:600;padding-bottom:4px;font-family:var(--font-mono);}
+.cal-cell{aspect-ratio:1;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;color:#94a3b8;position:relative;background:#f8fafc;}
+.cal-cell.empty{background:transparent;}
+.cal-cell.today{outline:2px solid var(--blue);outline-offset:-2px;font-weight:700;color:var(--ink);}
+.cal-cell.has{background:rgba(16,185,129,.12);color:var(--ink);font-weight:600;}
+.cal-cell .cal-emoji{font-size:15px;line-height:1;}
+.cal-cell .cal-day{font-size:9px;}
+.cal-legend{display:flex;gap:14px;justify-content:center;margin-top:14px;font-size:11px;color:var(--muted);}
+.cal-legend span{display:inline-flex;align-items:center;gap:5px;}
+.lg-dot{width:9px;height:9px;border-radius:3px;}
+
+/* LOG */
+.log-list{display:flex;flex-direction:column;gap:4px;max-height:240px;overflow-y:auto;}
+.log-item{display:flex;align-items:center;gap:11px;padding:9px 4px;border-bottom:1px solid #f1f5f9;}
+.log-item:last-child{border-bottom:none;}
+.log-emoji{font-size:20px;flex-shrink:0;}
+.log-info{flex:1;min-width:0;}
+.log-note{font-size:13px;color:var(--ink);}
+.log-amt{color:var(--green);font-weight:700;font-family:var(--font-mono);font-size:12px;}
+.log-date{font-size:11px;color:var(--muted);font-family:var(--font-mono);}
+.log-empty{text-align:center;color:var(--muted);font-size:13px;padding:24px;}
+
+/* SMART LINKS */
+.smart-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.smart-link{display:flex;align-items:center;gap:11px;padding:13px;border:1.5px solid var(--border);border-radius:12px;text-decoration:none;color:var(--ink);transition:all .15s;background:#fafafa;}
+.smart-link:hover{border-color:var(--blue);background:white;transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.05);}
+.sl-icon{font-size:22px;flex-shrink:0;}
+.sl-text{min-width:0;}
+.sl-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sl-desc{font-size:11px;color:var(--muted);}
+.smart-note{font-size:11px;color:#94a3b8;margin-top:12px;line-height:1.6;}
+
+/* ─── QUOTE BANNER (post check-in) ─── */
+.quote-overlay{display:none;position:fixed;inset:0;background:rgba(6,9,26,.78);z-index:250;align-items:center;justify-content:center;backdrop-filter:blur(6px);padding:20px;}
+.quote-overlay.show{display:flex;animation:fadeIn .4s ease;}
+.quote-modal{background:linear-gradient(150deg,#0f172a,#1e1b4b);border:1px solid rgba(139,92,246,.3);border-radius:24px;max-width:440px;width:100%;padding:44px 36px 32px;text-align:center;color:white;position:relative;overflow:hidden;}
+.quote-modal::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(59,130,246,.25),transparent 70%);}
+.qm-streak-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.35);border-radius:30px;padding:6px 16px;font-size:13px;font-weight:700;color:#fbbf24;margin-bottom:24px;font-family:var(--font-mono);}
+.qm-mark{font-family:var(--font-display);font-size:60px;line-height:.5;color:rgba(139,92,246,.5);height:30px;}
+.qm-text{font-family:var(--font-brush);font-size:30px;line-height:1.5;margin:8px 0 14px;color:#f8fafc;}
+.qm-text.en{font-family:var(--font-display);font-style:italic;font-size:23px;font-weight:500;line-height:1.5;}
+.qm-author{font-size:13px;color:#94a3b8;margin-bottom:28px;font-family:var(--font-mono);}
+.qm-close{background:white;color:var(--ink);border:none;border-radius:12px;padding:13px 36px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:transform .15s;}
+.qm-close:hover{transform:translateY(-1px);}
+
+/* ─── MODALS ─── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:20px;}
+.modal-overlay.show{display:flex;}
+.modal{background:white;border-radius:20px;max-width:400px;width:100%;padding:32px;text-align:center;animation:popIn .3s ease;max-height:90vh;overflow-y:auto;}
+@keyframes popIn{from{opacity:0;transform:scale(.92);}to{opacity:1;transform:scale(1);}}
+.modal-icon{font-size:40px;margin-bottom:12px;}
+.modal-title{font-family:var(--font-serif);font-size:20px;font-weight:900;margin-bottom:8px;}
+.modal-sub{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px;}
+.modal-countdown{font-family:var(--font-mono);font-size:32px;font-weight:700;color:var(--red);margin:16px 0;}
+.modal-loss{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:12px;font-size:13px;color:#dc2626;margin-bottom:20px;line-height:1.6;}
+.modal-btns{display:flex;flex-direction:column;gap:8px;}
+.modal-cancel{background:var(--green);color:white;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font-body);}
+.modal-confirm{background:none;color:var(--muted);border:1.5px solid var(--border);border-radius:10px;padding:10px;font-size:13px;cursor:pointer;font-family:var(--font-body);}
+.modal-cancel:hover{background:#059669;}
+/* edit modal form */
+.edit-field{text-align:left;margin-bottom:14px;}
+.edit-field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;font-family:var(--font-mono);}
+.edit-field input,.edit-field textarea{width:100%;border:1.5px solid var(--border);border-radius:9px;padding:11px 13px;font-size:14px;outline:none;font-family:var(--font-body);background:#fafafa;resize:none;}
+.edit-field input:focus,.edit-field textarea:focus{border-color:var(--blue);background:white;}
+.edit-dur{display:grid;grid-template-columns:1fr auto;gap:8px;}
+/* share modal */
+.share-link-box{display:flex;gap:8px;margin:16px 0;}
+.share-link-box input{flex:1;border:1.5px solid var(--border);border-radius:9px;padding:11px 13px;font-size:12px;font-family:var(--font-mono);outline:none;background:#f8fafc;color:var(--muted);}
+.share-copy{background:var(--blue);color:white;border:none;border-radius:9px;padding:0 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body);white-space:nowrap;}
+.share-preview{background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:16px;text-align:left;font-size:12px;color:var(--muted);line-height:1.6;}
+.share-warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:9px;padding:11px 13px;font-size:12px;color:#b45309;line-height:1.6;margin-top:14px;text-align:left;}
+
+/* ─── PUBLIC SHARE VIEW ─── */
+#v-share{background:var(--dark);color:white;min-height:100vh;display:none;}
+#v-share.active{display:block;}
+.pub-wrap{max-width:480px;margin:0 auto;padding:40px 20px 60px;}
+.pub-brand{font-family:var(--font-display);font-weight:900;font-size:20px;text-align:center;margin-bottom:6px;}
+.pub-brand span{color:var(--blue2);}
+.pub-tag{text-align:center;color:#64748b;font-size:12px;margin-bottom:32px;font-family:var(--font-mono);letter-spacing:1px;}
+.pub-card{background:linear-gradient(135deg,#0f172a,#1e1b4b);border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:32px;text-align:center;margin-bottom:18px;}
+.pub-who{font-size:13px;color:#94a3b8;margin-bottom:6px;}
+.pub-goal{font-family:var(--font-serif);font-size:24px;font-weight:900;margin-bottom:24px;line-height:1.3;}
+.pub-ring-wrap{position:relative;width:180px;height:180px;margin:0 auto 18px;}
+.pub-ring-pct{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.pub-pct-num{font-family:var(--font-mono);font-size:40px;font-weight:700;color:white;line-height:1;}
+.pub-pct-label{font-size:11px;color:#94a3b8;margin-top:4px;}
+.pub-streak{display:inline-flex;align-items:center;gap:6px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);border-radius:30px;padding:7px 18px;font-size:13px;font-weight:700;color:#fbbf24;font-family:var(--font-mono);}
+.pub-cheer{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:18px;}
+.pub-cheer-title{font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.reaction-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.react-btn{flex:1;min-width:64px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px;font-size:20px;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.react-btn:hover{background:rgba(255,255,255,.1);transform:translateY(-2px);}
+.react-count{font-size:11px;color:#94a3b8;font-family:var(--font-mono);}
+.comment-input-row{display:flex;flex-direction:column;gap:8px;}
+.comment-input-row input{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);border-radius:9px;padding:11px 13px;font-size:13px;outline:none;font-family:var(--font-body);color:white;}
+.comment-input-row input::placeholder{color:#64748b;}
+.comment-input-row input:focus{border-color:var(--blue);}
+.comment-send{background:var(--blue);color:white;border:none;border-radius:9px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body);}
+.comment-list{display:flex;flex-direction:column;gap:10px;margin-top:16px;}
+.comment-item{background:rgba(255,255,255,.04);border-radius:12px;padding:12px 14px;text-align:left;}
+.ci-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.ci-name{font-size:13px;font-weight:700;color:var(--blue2);}
+.ci-date{font-size:10px;color:#64748b;font-family:var(--font-mono);}
+.ci-text{font-size:13px;color:#cbd5e1;line-height:1.5;}
+.pub-empty{text-align:center;color:#64748b;font-size:12px;padding:14px;}
+.pub-cta{background:var(--blue);color:white;border:none;border-radius:14px;padding:16px;width:100%;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:transform .15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.pub-cta:hover{transform:translateY(-1px);}
+.pub-cta-note{text-align:center;font-size:11px;color:#64748b;margin-top:12px;line-height:1.6;}
+
+/* ─── ADMIN ─── */
+#v-admin{background:#0f172a;color:#e2e8f0;min-height:100vh;display:none;}
+#v-admin.active{display:block;}
+.adm-top{background:#06091a;border-bottom:1px solid rgba(255,255,255,.07);padding:18px 28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.adm-title{font-family:var(--font-display);font-weight:900;font-size:18px;}
+.adm-title span{color:var(--blue2);}
+.adm-badge{font-family:var(--font-mono);font-size:10px;background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.3);padding:4px 10px;border-radius:5px;letter-spacing:1px;margin-left:10px;}
+.adm-logout{font-size:13px;color:#94a3b8;cursor:pointer;border:1px solid rgba(255,255,255,.12);padding:7px 16px;border-radius:8px;background:none;font-family:var(--font-body);}
+.adm-logout:hover{color:white;border-color:var(--red);}
+.adm-body{max-width:1100px;margin:0 auto;padding:28px;}
+.adm-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.adm-stat{background:#1e293b;border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:20px;}
+.adm-stat-num{font-family:var(--font-mono);font-size:28px;font-weight:700;color:var(--blue2);line-height:1;}
+.adm-stat-label{font-size:12px;color:#94a3b8;margin-top:6px;}
+.adm-section-title{font-size:14px;font-weight:700;margin-bottom:14px;color:#cbd5e1;}
+.adm-user-card{background:#1e293b;border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:18px;margin-bottom:14px;}
+.auc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.auc-email{font-size:14px;font-weight:700;}
+.auc-meta{font-size:11px;color:#64748b;font-family:var(--font-mono);}
+.auc-goals{display:flex;flex-direction:column;gap:8px;}
+.auc-goal{background:#0f172a;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:14px;}
+.aucg-bar{flex:1;height:7px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;min-width:80px;}
+.aucg-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:4px;}
+.aucg-title{font-size:13px;font-weight:600;min-width:120px;}
+.aucg-pct{font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--green);min-width:42px;text-align:right;}
+.aucg-meta{font-size:11px;color:#64748b;font-family:var(--font-mono);min-width:90px;text-align:right;}
+.adm-empty{text-align:center;color:#64748b;padding:40px;font-size:14px;}
+
+/* PDF HIDDEN RENDER */
+.pdf-stage{position:fixed;left:-9999px;top:0;width:794px;background:white;color:#0f172a;padding:48px;font-family:var(--font-body);}
+.pdf-h{font-family:var(--font-serif);font-size:30px;font-weight:900;margin-bottom:4px;}
+.pdf-brand{font-family:var(--font-mono);font-size:11px;color:var(--blue);letter-spacing:2px;margin-bottom:24px;}
+.pdf-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+.pdf-sum{background:#f1f5f9;border-radius:12px;padding:16px;text-align:center;}
+.pdf-sum-num{font-family:var(--font-mono);font-size:20px;font-weight:700;color:var(--blue);}
+.pdf-sum-label{font-size:11px;color:#64748b;margin-top:4px;}
+.pdf-table{width:100%;border-collapse:collapse;margin-bottom:24px;}
+.pdf-table th{background:#0f172a;color:white;font-size:12px;padding:11px 12px;text-align:left;font-weight:600;}
+.pdf-table th:first-child{border-radius:8px 0 0 0;}
+.pdf-table th:last-child{border-radius:0 8px 0 0;text-align:center;}
+.pdf-table td{font-size:13px;padding:11px 12px;border-bottom:1px solid #e2e8f0;}
+.pdf-table tr:nth-child(even) td{background:#f8fafc;}
+.pdf-check{text-align:center;}
+.pdf-box{display:inline-block;width:18px;height:18px;border:2px solid #cbd5e1;border-radius:5px;}
+.pdf-foot{background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(139,92,246,.08));border-radius:12px;padding:18px;text-align:center;font-family:var(--font-serif);font-size:16px;font-weight:500;color:#0f172a;}
+.pdf-note{font-size:11px;color:#94a3b8;text-align:center;margin-top:16px;font-family:var(--font-mono);}
+
+/* CELEBRATION + TOAST */
+.confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:200;}
+.confetti-piece{position:absolute;width:8px;height:8px;border-radius:2px;animation:confettiFall linear forwards;}
+@keyframes confettiFall{to{transform:translateY(100vh) rotate(720deg);opacity:0;}}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(90px);background:var(--ink);color:white;padding:13px 26px;border-radius:12px;font-size:14px;font-weight:600;z-index:300;transition:transform .3s ease;max-width:90%;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.25);}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:860px){
+  #v-app.active{flex-direction:column;}
+  .sidebar{width:100%;height:auto;position:relative;flex-direction:column;}
+  .sb-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;}
+  .sb-goals{display:flex;overflow-x:auto;overflow-y:hidden;padding:12px;gap:8px;flex:none;}
+  .sb-section-label{display:none;}
+  .goal-tab{margin-bottom:0;min-width:200px;flex-shrink:0;}
+  .sb-new{min-width:160px;margin:0;flex-shrink:0;width:auto;}
+  .sb-foot{padding:10px 16px;}
+  .main{height:auto;}
+}
+@media(max-width:600px){
+  .hero-inner{padding:40px 22px 60px;}
+  .hero-title{font-size:36px;}
+  .wiz-top{padding:32px 18px 70px;}
+  .wiz-title{font-size:26px;}
+  .goal-card{padding:24px;}
+  .amount-row{grid-template-columns:1fr;}
+  .duration-row{grid-template-columns:1fr;}
+  .unit-toggle{justify-content:space-between;}
+  .dash-header{padding:22px 18px 52px;}
+  .dash-content{padding:0 14px 40px;}
+  .mood-grid{grid-template-columns:repeat(4,1fr);}
+  .smart-grid{grid-template-columns:1fr;}
+  .rh-stats{grid-template-columns:repeat(3,1fr);}
+  .adm-stats{grid-template-columns:repeat(2,1fr);}
+  .adm-body{padding:18px;}
+  .qm-text{font-size:26px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HERO / LANDING ═══════════ -->
+<div class="view active" id="v-hero">
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="hero-nav">
+      <div class="hero-logo">Goal<span>Bank</span></div>
+      <button class="hero-login-link" onclick="showAuth('login')">登录 / 注册</button>
+    </div>
+    <div class="hero-badge"><div class="blink"></div><span>GOALBANK · 学生财务目标平台 · 2026</span></div>
+    <h1 class="hero-title">学生不是不想存钱<br>只是需要<em>对的工具</em></h1>
+    <p class="hero-sub">GoalBank 用行为经济学的方法，把你脑子里的财务目标，变成每周都在发生的真实行动。多目标并行、AI 拆解、承诺机制、打卡日历——一个都不少。</p>
+    <div class="hero-data">
+      <div class="hd"><strong>66%</strong>受访学生愿意使用专属储蓄工具</div>
+      <div class="hd"><strong>90%+</strong>需要储蓄监督打卡服务</div>
+      <div class="hd"><strong>41%</strong>存不下钱的根本原因是自控力</div>
+      <div class="hd"><strong>53%</strong>最需要智能存钱计划功能</div>
+    </div>
+    <button class="hero-cta" onclick="enterApp()">开始设定我的目标 →</button>
+    <div class="hero-theories">
+      <div class="theory-tag"><div class="theory-dot" style="background:#8b5cf6"></div>双曲折现干预</div>
+      <div class="theory-tag"><div class="theory-dot" style="background:#3b82f6"></div>Nudge Theory</div>
+      <div class="theory-tag"><div class="theory-dot" style="background:#10b981"></div>承诺装置</div>
+      <div class="theory-tag"><div class="theory-dot" style="background:#f59e0b"></div>损失厌恶</div>
+      <div class="theory-tag"><div class="theory-dot" style="background:#06b6d4"></div>心理账户</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ AUTH ═══════════ -->
+<div class="view" id="v-auth">
+  <div class="auth-card">
+    <div class="auth-brand">Goal<span>Bank</span></div>
+    <div class="auth-tag">登录后，你的目标会安全保存在这台设备上</div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">登录</div>
+      <div class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">注册</div>
+    </div>
+    <div class="auth-field">
+      <label>邮箱</label>
+      <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="auth-field">
+      <label>密码</label>
+      <input type="password" id="authPassword" placeholder="至少 6 位" autocomplete="current-password">
+    </div>
+    <div class="auth-field" id="authConfirmField" style="display:none;">
+      <label>确认密码</label>
+      <input type="password" id="authConfirm" placeholder="再输入一次">
+    </div>
+    <button class="auth-btn" id="authSubmit" onclick="doAuth()">登录</button>
+    <div class="auth-msg" id="authMsg"></div>
+    <div class="auth-foot">
+      <a onclick="showView('v-hero')">← 返回首页</a>
+      <a onclick="openAdminLogin()">操作人员入口</a>
+    </div>
+    <div class="auth-note">提示：这是前端演示版，账号与数据保存在浏览器本地（localStorage），方便你完整体验流程。正式上线需接入后端做真实的账号与加密。</div>
+  </div>
+</div>
+
+<!-- ═══════════ APP SHELL ═══════════ -->
+<div class="view" id="v-app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-head">
+      <div class="sb-logo">Goal<span>Bank</span><small>FINANCIAL GOALS</small></div>
+    </div>
+    <div class="sb-goals" id="goalTabs">
+      <div class="sb-section-label">我的目标</div>
+      <!-- goal tabs injected -->
+      <button class="sb-new" onclick="newGoal()">＋ 新建目标</button>
+    </div>
+    <div class="sb-foot">
+      <div class="sb-user">
+        <div class="sb-avatar" id="sbAvatar">U</div>
+        <div class="sb-uinfo">
+          <div class="sb-uemail" id="sbEmail">user@example.com</div>
+          <div class="sb-logout" onclick="logout()">退出登录</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="appMain">
+
+    <!-- ===== WIZARD STEP 1: GOAL INPUT ===== -->
+    <section id="wizStep1" style="display:none;">
+      <div class="wiz-top">
+        <div class="step-indicator">
+          <div class="step active" id="step1"><span class="step-num">1</span>设定目标</div>
+          <div class="step-line"></div>
+          <div class="step" id="step2"><span class="step-num">2</span>AI分析</div>
+          <div class="step-line"></div>
+          <div class="step" id="step3"><span class="step-num">3</span>承诺机制</div>
+        </div>
+        <h2 class="wiz-title">你想实现什么目标？</h2>
+        <p class="wiz-sub">越详细越好——告诉我你为什么想要这个，AI 会给你更精准的方案</p>
+      </div>
+      <div class="wiz-body">
+        <div class="goal-card">
+          <div class="gc-label">描述你的目标</div>
+          <textarea class="goal-textarea" id="goalText" rows="3" placeholder="例如：我想在 3 个月内存够 ¥8000，暑假去日本旅行，一直是我的梦想，但每次都花完了……"></textarea>
+
+          <div style="margin-top:16px;">
+            <div class="gc-label">快速选择类型（可选）</div>
+            <div class="cats" id="catBtns">
+              <button class="cat" onclick="toggleCat(this,'旅行/社交娱乐')">✈️ 旅行/社交</button>
+              <button class="cat" onclick="toggleCat(this,'大额物品')">📱 大额物品</button>
+              <button class="cat" onclick="toggleCat(this,'应急备用金')">🛡️ 应急备用金</button>
+              <button class="cat" onclick="toggleCat(this,'备考/留学')">📚 备考/留学</button>
+              <button class="cat" onclick="toggleCat(this,'毕业储备')">🎓 毕业储备</button>
+            </div>
+          </div>
+
+          <div class="amount-row">
+            <div class="input-group">
+              <div class="gc-label">目标金额（元）</div>
+              <div class="input-wrap prefixed">
+                <span class="input-prefix">¥</span>
+                <input type="number" id="goalAmount" placeholder="8000" min="0">
+              </div>
+            </div>
+            <div class="input-group">
+              <div class="gc-label">希望多久内完成</div>
+              <div class="duration-row">
+                <div class="input-wrap">
+                  <input type="number" id="goalCount" placeholder="12" min="1" max="365">
+                </div>
+                <div class="unit-toggle" id="unitToggle">
+                  <div class="unit-opt" data-unit="day" onclick="selectUnit('day')">天</div>
+                  <div class="unit-opt active" data-unit="week" onclick="selectUnit('week')">周</div>
+                  <div class="unit-opt" data-unit="month" onclick="selectUnit('month')">月</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="aiLoadingArea" class="ai-loading">
+            <div class="ai-spinner"></div>
+            <div class="ai-status" id="aiStatus">AI 正在分析你的目标…</div>
+          </div>
+
+          <button class="submit-btn" id="submitBtn" onclick="submitGoal()">🤖 &nbsp; AI 生成我的专属方案</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== WIZARD STEP 2: AI RESULTS ===== -->
+    <section id="wizStep2" style="display:none;">
+      <div style="padding:40px 20px;max-width:680px;margin:0 auto;">
+        <button class="back-btn" onclick="showWizard(1)">← 返回修改</button>
+        <div class="result-hero">
+          <div class="rh-label">AI 专属方案</div>
+          <div class="rh-goal" id="resultGoalTitle">加载中…</div>
+          <div class="rh-stats">
+            <div class="rhs"><div class="rhs-num" id="rWeekly">-</div><div class="rhs-label">每周存入</div></div>
+            <div class="rhs"><div class="rhs-num" id="rDuration">-</div><div class="rhs-label" id="rDurationLabel">周后实现</div></div>
+            <div class="rhs"><div class="rhs-num" id="rMonthly">-</div><div class="rhs-label">每月存入</div></div>
+          </div>
+          <div class="principle-badge" id="principleTag">🧠 加载中…</div>
+        </div>
+
+        <div class="section-card">
+          <div class="sc-title"><span class="sc-icon">🗓️</span>三阶段心理路线图</div>
+          <div class="phase-list">
+            <div class="phase-item"><div class="phase-num" style="background:#3b82f6">1</div><div class="phase-text" id="phase1Text">加载中…</div></div>
+            <div class="phase-item"><div class="phase-num" style="background:#8b5cf6">2</div><div class="phase-text" id="phase2Text">加载中…</div></div>
+            <div class="phase-item"><div class="phase-num" style="background:#10b981">3</div><div class="phase-text" id="phase3Text">加载中…</div></div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="sc-title"><span class="sc-icon">⚡</span>立刻可以做的三步</div>
+          <div class="steps-list" id="stepsList"></div>
+        </div>
+
+        <div class="motivation-box" id="motivationBox">加载中…</div>
+        <button class="next-btn" onclick="showWizard(3)">✅ &nbsp; 确认方案，设置承诺机制 →</button>
+      </div>
+    </section>
+
+    <!-- ===== WIZARD STEP 3: COMMITMENT ===== -->
+    <section id="wizStep3" style="display:none;">
+      <div style="padding:40px 20px;max-width:600px;margin:0 auto;">
+        <button class="back-btn" onclick="showWizard(2)">← 返回方案</button>
+        <div class="commitment-hero">
+          <div class="ch-icon">🔒</div>
+          <div class="ch-title">设置你的承诺机制</div>
+          <div class="ch-sub">把自己绑在桅杆上——奥德修斯早就知道这个道理</div>
+        </div>
+
+        <div class="toggle-row" onclick="toggleFeature('cooling')">
+          <div class="tr-left">
+            <div class="tr-title">⏳ 48小时取款冷静期</div>
+            <div class="tr-sub">申请取款后，需等待 48 小时才能到账</div>
+            <div class="tr-be">承诺装置 · Commitment Device</div>
+          </div>
+          <div class="toggle" id="cooling-toggle"><div class="toggle-dot"></div></div>
+        </div>
+        <div class="cooling-display" id="cooling-display">
+          取款申请后，系统会在 48 小时内持续提醒你目标进度倒退了多少，期间你可以随时取消申请。数据显示，开启冷静期的用户储蓄余额高出对照组 <strong>81%</strong>（Ashraf et al., 2006）。
+        </div>
+
+        <div class="toggle-row" onclick="toggleFeature('checkin')">
+          <div class="tr-left">
+            <div class="tr-title">📅 每周强制打卡提醒</div>
+            <div class="tr-sub">每周固定日期提醒你存入本周份额</div>
+            <div class="tr-be">Nudge Theory · 默认开启的助推</div>
+          </div>
+          <div class="toggle on" id="checkin-toggle"><div class="toggle-dot"></div></div>
+        </div>
+
+        <div class="toggle-row" onclick="toggleFeature('impulse')">
+          <div class="tr-left">
+            <div class="tr-title">⚠️ 冲动消费拦截提醒</div>
+            <div class="tr-sub">当你试图取款时，自动显示目标损失情况</div>
+            <div class="tr-be">损失厌恶 · Loss Aversion</div>
+          </div>
+          <div class="toggle on" id="impulse-toggle"><div class="toggle-dot"></div></div>
+        </div>
+
+        <div class="social-share">
+          <div class="ss-title">🌐 公开承诺（可选，效果更强）</div>
+          <div class="ss-text">研究显示，向朋友公开你的储蓄目标，执行率显著提升。这利用的是社会承诺效应——你不想让看到这条消息的人失望。开始跟踪后，可在仪表盘里生成只显示进度百分比（不含金额）的分享链接。</div>
+        </div>
+
+        <div class="impulse-warning">
+          <div class="iw-title">💡 关于冲动消费（来自你们的数据）</div>
+          <div class="iw-text">我们的调研显示，<strong>41% 的学生</strong>认为自控力差是存不下钱的主因。GoalBank 的设计不是让你更努力，而是让「存钱」比「花钱」的摩擦更小。</div>
+        </div>
+
+        <button class="start-btn" onclick="startTracking()">🚀 &nbsp; 开始跟踪我的目标</button>
+      </div>
+    </section>
+
+    <!-- ===== DASHBOARD ===== -->
+    <section id="dashWrap" style="display:none;">
+      <div class="dash-header">
+        <div class="dh-top">
+          <div class="dh-brand">● 进行中</div>
+          <div class="dh-actions">
+            <button class="dh-act" onclick="openEditModal()">✏️ 修改计划</button>
+            <button class="dh-act" onclick="downloadPDF()">📄 下载PDF日历</button>
+            <button class="dh-act" onclick="openShareModal()">🔗 分享给朋友</button>
+            <button class="dh-act danger" onclick="restartGoal()">🔄 重新开始</button>
+            <button class="dh-act danger" onclick="deleteGoal()">🗑️ 删除</button>
+          </div>
+        </div>
+        <div class="dh-goal" id="dashGoalTitle">我的目标</div>
+        <div class="dh-sub" id="dashGoalSub">每周存入 ¥- · 还剩 - 周</div>
+      </div>
+
+      <div class="dash-content">
+        <!-- progress ring -->
+        <div class="card progress-ring-card">
+          <div class="ring-wrap">
+            <svg class="ring-svg" width="164" height="164" viewBox="0 0 164 164">
+              <circle class="ring-bg" cx="82" cy="82" r="66"/>
+              <circle class="ring-fill" id="ringFill" cx="82" cy="82" r="66" stroke-dasharray="414.69" stroke-dashoffset="414.69"/>
+            </svg>
+            <div class="ring-center">
+              <div class="ring-pct" id="ringPct">0%</div>
+              <div class="ring-label">已完成</div>
+            </div>
+          </div>
+          <div class="progress-stats">
+            <div class="pstat"><div class="pstat-num" id="statSaved">¥0</div><div class="pstat-label">已存入</div></div>
+            <div class="pstat"><div class="pstat-num" id="statLeft">¥-</div><div class="pstat-label">还需要</div></div>
+            <div class="pstat"><div class="pstat-num" id="statRemain">-</div><div class="pstat-label" id="statRemainLabel">剩余周数</div></div>
+          </div>
+          <div class="dash-btn-row">
+            <button class="btn-primary" onclick="addSavings()">＋ 记录存款</button>
+            <button class="btn-ghost" onclick="showWithdrawModal()">申请取款</button>
+          </div>
+        </div>
+
+        <!-- phase -->
+        <div class="card">
+          <div class="sc-title" style="margin-bottom:12px;"><span class="sc-icon">🗺️</span>当前阶段</div>
+          <div class="phase-indicator">
+            <div class="phase-dot" id="phaseDot" style="background:var(--blue)"></div>
+            <div class="phase-info">
+              <div class="phase-stage" id="phaseStageLabel">起步阶段</div>
+              <div class="phase-msg" id="phaseMsgText">保持热情，建立习惯，这是最重要的一步。</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- check-in -->
+        <div class="card">
+          <div class="cc-title">
+            <span>今日打卡 · 你感觉怎么样？</span>
+            <span class="cc-streak" id="streakDisplay">🔥 连续 0 天</span>
+          </div>
+          <div class="mood-grid">
+            <button class="mood-btn" onclick="selectMood(this,'😫')">😫</button>
+            <button class="mood-btn" onclick="selectMood(this,'😕')">😕</button>
+            <button class="mood-btn" onclick="selectMood(this,'😐')">😐</button>
+            <button class="mood-btn" onclick="selectMood(this,'🙂')">🙂</button>
+            <button class="mood-btn" onclick="selectMood(this,'😎')">😎</button>
+            <button class="mood-btn" onclick="selectMood(this,'💪')">💪</button>
+            <button class="mood-btn" onclick="selectMood(this,'🤑')">🤑</button>
+            <button class="mood-btn" onclick="selectMood(this,'🎉')">🎉</button>
+          </div>
+          <div class="checkin-amt-row">
+            <input class="save-input" id="checkinNote" placeholder="今天遇到了什么？记一笔（可选）" />
+            <input class="save-input amt" id="checkinAmt" type="number" placeholder="¥ 存入" min="0" />
+          </div>
+          <button class="checkin-btn" onclick="doCheckin()">✅ 完成今日打卡</button>
+        </div>
+
+        <!-- calendar -->
+        <div class="card">
+          <div class="cal-head">
+            <button class="cal-nav" onclick="calNav(-1)">‹</button>
+            <div class="cal-month" id="calMonth">2026 / 06</div>
+            <button class="cal-nav" onclick="calNav(1)">›</button>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
+          <div class="cal-legend">
+            <span><span class="lg-dot" style="background:rgba(16,185,129,.4)"></span>已打卡</span>
+            <span><span class="lg-dot" style="background:var(--blue)"></span>今天</span>
+            <span><span class="lg-dot" style="background:#f8fafc;border:1px solid #e2e8f0"></span>未打卡</span>
+          </div>
+        </div>
+
+        <!-- smart links -->
+        <div class="card" id="smartCard">
+          <div class="sc-title" style="margin-bottom:6px;"><span class="sc-icon">🧭</span>把计划变成行动</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6;">根据你的目标类型，这些工具能帮你提前规划——先逛一逛、查一查，把"想要"变得更具体，成就感更强。</div>
+          <div class="smart-grid" id="smartGrid"></div>
+          <div class="smart-note" id="smartNote"></div>
+        </div>
+
+        <!-- log -->
+        <div class="card">
+          <div class="sc-title" style="margin-bottom:12px;"><span class="sc-icon">📋</span>打卡记录</div>
+          <div class="log-list" id="logList">
+            <div class="log-empty">还没有记录，开始你的第一次打卡吧！</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ═══════════ PUBLIC SHARE VIEW ═══════════ -->
+<div class="view" id="v-share">
+  <div class="pub-wrap">
+    <div class="pub-brand">Goal<span>Bank</span></div>
+    <div class="pub-tag">A FRIEND IS CHASING A GOAL</div>
+    <div class="pub-card">
+      <div class="pub-who" id="pubWho">一位朋友正在努力实现</div>
+      <div class="pub-goal" id="pubGoal">目标</div>
+      <div class="pub-ring-wrap">
+        <svg width="180" height="180" viewBox="0 0 180 180" style="transform:rotate(-90deg)">
+          <circle cx="90" cy="90" r="74" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="13"/>
+          <circle id="pubRing" cx="90" cy="90" r="74" fill="none" stroke="#60a5fa" stroke-width="13" stroke-linecap="round" stroke-dasharray="464.96" stroke-dashoffset="464.96" style="transition:stroke-dashoffset 1.2s ease"/>
+        </svg>
+        <div class="pub-ring-pct">
+          <div class="pub-pct-num" id="pubPct">0%</div>
+          <div class="pub-pct-label">已完成</div>
+        </div>
+      </div>
+      <div class="pub-streak" id="pubStreak">🔥 连续打卡 0 天</div>
+    </div>
+
+    <div class="pub-cheer">
+      <div class="pub-cheer-title">👏 给 TA 一点鼓励</div>
+      <div class="reaction-row" id="reactionRow"></div>
+      <div class="comment-input-row">
+        <input id="commentName" placeholder="你的名字" maxlength="16" />
+        <input id="commentText" placeholder="写句话给 TA 加油…" maxlength="120" />
+        <button class="comment-send" onclick="postComment()">发送鼓励 →</button>
+      </div>
+      <div class="comment-list" id="commentList">
+        <div class="pub-empty">还没有人留言，来做第一个鼓励 TA 的人吧！</div>
+      </div>
+    </div>
+
+    <button class="pub-cta" onclick="shareCtaToApp()">✨ 我也要定一个目标 →</button>
+    <div class="pub-cta-note">为保护隐私，分享页只显示进度百分比，<strong>不会显示任何金额</strong>。</div>
+  </div>
+</div>
+
+<!-- ═══════════ ADMIN PANEL ═══════════ -->
+<div class="view" id="v-admin">
+  <div class="adm-top">
+    <div class="adm-title">Goal<span>Bank</span> 控制台<span class="adm-badge">OPERATOR</span></div>
+    <button class="adm-logout" onclick="adminLogout()">退出控制台</button>
+  </div>
+  <div class="adm-body">
+    <div class="adm-stats" id="admStats"></div>
+    <div class="adm-section-title">全部用户与目标</div>
+    <div id="admUsers"></div>
+  </div>
+</div>
+
+<!-- ═══════════ MODALS ═══════════ -->
+<!-- withdraw -->
+<div class="modal-overlay" id="withdrawModal">
+  <div class="modal">
+    <div class="modal-icon">⏳</div>
+    <div class="modal-title">取款冷静期</div>
+    <div class="modal-sub" id="withdrawSub">你已开启 48 小时冷静期承诺。取款申请将在以下时间后处理：</div>
+    <div class="modal-countdown" id="cooldownDisplay">48:00:00</div>
+    <div class="modal-loss" id="withdrawLoss">取出后，你的目标进度将倒退，需要额外时间才能追回。</div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="hideWithdrawModal()">🙅 我再想想，不取了</button>
+      <button class="modal-confirm" onclick="hideWithdrawModal()">确认申请（冷静期后到账）</button>
+    </div>
+  </div>
+</div>
+
+<!-- edit -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal" style="text-align:left;">
+    <div style="text-align:center;"><div class="modal-icon">✏️</div><div class="modal-title">修改计划</div>
+    <div class="modal-sub">临时调整目标？随时改，进度和打卡都会保留。</div></div>
+    <div class="edit-field">
+      <label>目标标题</label>
+      <input id="editTitle" type="text">
+    </div>
+    <div class="edit-field">
+      <label>目标金额（元）</label>
+      <input id="editAmount" type="number" min="0">
+    </div>
+    <div class="edit-field">
+      <label>时间长度</label>
+      <div class="edit-dur">
+        <input id="editCount" type="number" min="1" max="365">
+        <div class="unit-toggle" id="editUnitToggle">
+          <div class="unit-opt" data-unit="day" onclick="selectEditUnit('day')">天</div>
+          <div class="unit-opt active" data-unit="week" onclick="selectEditUnit('week')">周</div>
+          <div class="unit-opt" data-unit="month" onclick="selectEditUnit('month')">月</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-btns" style="margin-top:8px;">
+      <button class="modal-cancel" style="background:var(--blue)" onclick="saveEdit()">💾 保存修改</button>
+      <button class="modal-confirm" onclick="closeModal('editModal')">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- share -->
+<div class="modal-overlay" id="shareModal">
+  <div class="modal">
+    <div class="modal-icon">🔗</div>
+    <div class="modal-title">分享你的目标</div>
+    <div class="modal-sub">把链接发给朋友，TA 能看到你的进度并为你加油。</div>
+    <div class="share-link-box">
+      <input id="shareLink" readonly>
+      <button class="share-copy" onclick="copyShareLink()">复制</button>
+    </div>
+    <div class="share-preview" id="sharePreview"></div>
+    <div class="share-warn">🔒 朋友只会看到<strong>进度百分比和连续打卡天数</strong>，不会看到你的目标金额、已存金额等任何敏感数字。</div>
+    <div class="modal-btns" style="margin-top:16px;">
+      <button class="modal-confirm" onclick="closeModal('shareModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- admin login -->
+<div class="modal-overlay" id="adminLoginModal">
+  <div class="modal">
+    <div class="modal-icon">🔐</div>
+    <div class="modal-title">操作人员登录</div>
+    <div class="modal-sub">输入操作密码以查看所有用户的目标概览。</div>
+    <div class="edit-field">
+      <label>操作密码</label>
+      <input id="adminPass" type="password" placeholder="请输入操作密码" onkeydown="if(event.key==='Enter')doAdminLogin()">
+    </div>
+    <div class="auth-msg err" id="adminMsg"></div>
+    <div class="modal-btns" style="margin-top:8px;">
+      <button class="modal-cancel" style="background:var(--blue)" onclick="doAdminLogin()">进入控制台</button>
+      <button class="modal-confirm" onclick="closeModal('adminLoginModal')">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUOTE BANNER -->
+<div class="quote-overlay" id="quoteOverlay">
+  <div class="quote-modal">
+    <div class="qm-streak-badge" id="qmStreak">🔥 连续 1 天</div>
+    <div class="qm-mark">"</div>
+    <div class="qm-text" id="qmText"></div>
+    <div class="qm-author" id="qmAuthor"></div>
+    <button class="qm-close" onclick="closeQuote()">继续加油 →</button>
+  </div>
+</div>
+
+<!-- TOAST + CONFETTI + PDF STAGE -->
+<div class="toast" id="toast"></div>
+<div class="confetti-wrap" id="confetti"></div>
+<div class="pdf-stage" id="pdfStage"></div>
+
+<script>
+// ════════════════════════════════════════════
+//  GOALBANK · 前端演示版
+//  数据保存在浏览器 localStorage（演示用途）
+// ════════════════════════════════════════════
+
+const ADMIN_PASSWORD = "goalbank-admin-2026";   // 操作人员密码
+
+// 励志名言库（经典 / 公共领域）
+const QUOTES = [
+  {t:"千里之行，始于足下。", a:"《道德经》", en:false},
+  {t:"不积跬步，无以至千里；不积小流，无以成江海。", a:"《荀子·劝学》", en:false},
+  {t:"锲而不舍，金石可镂。", a:"《荀子·劝学》", en:false},
+  {t:"由俭入奢易，由奢入俭难。", a:"司马光《训俭示康》", en:false},
+  {t:"合抱之木，生于毫末；九层之台，起于累土。", a:"《道德经》", en:false},
+  {t:"凡事预则立，不预则废。", a:"《礼记·中庸》", en:false},
+  {t:"行百里者半九十。", a:"《战国策》", en:false},
+  {t:"心之所向，素履以往。", a:"古语", en:false},
+  {t:"积少成多，聚沙成塔。", a:"谚语", en:false},
+  {t:"滴水穿石，非一日之功。", a:"谚语", en:false},
+  {t:"A penny saved is a penny earned.", a:"Benjamin Franklin", en:true},
+  {t:"Beware of little expenses; a small leak will sink a great ship.", a:"Benjamin Franklin", en:true},
+  {t:"Little by little, a little becomes a lot.", a:"Proverb", en:true},
+  {t:"The best time to plant a tree was 20 years ago. The second best time is now.", a:"Proverb", en:true},
+  {t:"Do not save what is left after spending; spend what is left after saving.", a:"Money Wisdom", en:true},
+];
+
+// ════════ STATE & STORAGE ════════
+let session = null;        // 当前登录邮箱
+let activeGoalId = null;   // 当前选中目标
+let calRef = new Date();   // 日历当前月
+let editUnit = 'week';
+let pendingUnit = 'week';
+
+function loadAccounts(){ try{ return JSON.parse(localStorage.getItem('gb_accounts')||'{}'); }catch(e){ return {}; } }
+function saveAccounts(a){ localStorage.setItem('gb_accounts', JSON.stringify(a)); }
+function currentUser(){ const a=loadAccounts(); return session ? a[session] : null; }
+function saveData(){ const a=loadAccounts(); if(session && a[session]){ saveAccounts(a); } }
+function getGoals(){ const u=currentUser(); return u ? (u.goals||[]) : []; }
+function activeGoal(){ return getGoals().find(g=>g.id===activeGoalId) || null; }
+function commitGoals(goals){ const a=loadAccounts(); if(session&&a[session]){ a[session].goals=goals; saveAccounts(a); } }
+function updateActiveGoal(mut){ const goals=getGoals(); const g=goals.find(x=>x.id===activeGoalId); if(!g)return; mut(g); g.lastUpdated=Date.now(); commitGoals(goals); }
+
+// ════════ ROUTING ════════
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function enterApp(){
+  if(session){ openApp(); } else { showAuth('register'); }
+}
+function showAuth(mode){ showView('v-auth'); switchAuthTab(mode); document.getElementById('authMsg').textContent=''; }
+
+function openApp(){
+  showView('v-app');
+  const u=currentUser();
+  document.getElementById('sbEmail').textContent = session;
+  document.getElementById('sbAvatar').textContent = (session||'U')[0];
+  renderSidebar();
+  const goals=getGoals();
+  if(goals.length===0){ showWizard(1); }
+  else { selectGoal(activeGoalId && goals.find(g=>g.id===activeGoalId) ? activeGoalId : goals[0].id); }
+}
+
+// ════════ AUTH ════════
+function switchAuthTab(mode){
+  const isReg = mode==='register';
+  document.getElementById('tab-login').classList.toggle('active', !isReg);
+  document.getElementById('tab-register').classList.toggle('active', isReg);
+  document.getElementById('authConfirmField').style.display = isReg ? 'block':'none';
+  document.getElementById('authSubmit').textContent = isReg ? '创建账号':'登录';
+  document.getElementById('authSubmit').dataset.mode = mode;
+  document.getElementById('authMsg').textContent='';
+}
+
+function doAuth(){
+  const mode = document.getElementById('authSubmit').dataset.mode || 'login';
+  const email = document.getElementById('authEmail').value.trim().toLowerCase();
+  const pw = document.getElementById('authPassword').value;
+  const msg = document.getElementById('authMsg');
+  msg.className='auth-msg err';
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ msg.textContent='请输入有效的邮箱地址'; return; }
+  if(pw.length<6){ msg.textContent='密码至少 6 位'; return; }
+  const accounts = loadAccounts();
+
+  if(mode==='register'){
+    const confirm = document.getElementById('authConfirm').value;
+    if(pw!==confirm){ msg.textContent='两次输入的密码不一致'; return; }
+    if(accounts[email]){ msg.textContent='该邮箱已注册，请直接登录'; return; }
+    accounts[email] = { email, password:pw, createdAt:Date.now(), goals:[] };
+    saveAccounts(accounts);
+    session = email; localStorage.setItem('gb_session', email);
+    msg.className='auth-msg ok'; msg.textContent='注册成功，正在进入…';
+    setTimeout(openApp, 500);
+  } else {
+    if(!accounts[email]){ msg.textContent='账号不存在，请先注册'; return; }
+    if(accounts[email].password!==pw){ msg.textContent='密码错误'; return; }
+    session = email; localStorage.setItem('gb_session', email);
+    msg.className='auth-msg ok'; msg.textContent='登录成功，正在进入…';
+    setTimeout(openApp, 400);
+  }
+}
+
+function logout(){
+  session=null; activeGoalId=null;
+  localStorage.removeItem('gb_session');
+  showView('v-hero');
+}
+
+// ════════ ADMIN ════════
+function openAdminLogin(){ openModal('adminLoginModal'); document.getElementById('adminMsg').textContent=''; document.getElementById('adminPass').value=''; setTimeout(()=>document.getElementById('adminPass').focus(),100); }
+function doAdminLogin(){
+  const v = document.getElementById('adminPass').value;
+  if(v===ADMIN_PASSWORD){ closeModal('adminLoginModal'); openAdmin(); }
+  else { document.getElementById('adminMsg').textContent='密码错误'; }
+}
+function adminLogout(){ showView(session?'v-app':'v-hero'); if(session) openApp(); }
+
+function openAdmin(){
+  showView('v-admin');
+  const accounts = loadAccounts();
+  const emails = Object.keys(accounts);
+  let totalGoals=0, totalSaved=0, totalCheckins=0;
+  emails.forEach(e=>{ (accounts[e].goals||[]).forEach(g=>{ totalGoals++; totalSaved+=g.savedAmount||0; totalCheckins+=(g.checkins||[]).length; }); });
+
+  document.getElementById('admStats').innerHTML = `
+    <div class="adm-stat"><div class="adm-stat-num">${emails.length}</div><div class="adm-stat-label">注册用户</div></div>
+    <div class="adm-stat"><div class="adm-stat-num">${totalGoals}</div><div class="adm-stat-label">目标总数</div></div>
+    <div class="adm-stat"><div class="adm-stat-num">¥${totalSaved.toLocaleString()}</div><div class="adm-stat-label">累计已存金额</div></div>
+    <div class="adm-stat"><div class="adm-stat-num">${totalCheckins}</div><div class="adm-stat-label">打卡次数</div></div>`;
+
+  const wrap = document.getElementById('admUsers');
+  if(emails.length===0){ wrap.innerHTML='<div class="adm-empty">还没有任何用户注册</div>'; return; }
+  wrap.innerHTML = emails.map(e=>{
+    const acc=accounts[e]; const goals=acc.goals||[];
+    const goalsHtml = goals.length? goals.map(g=>{
+      const pct = g.total_amount>0 ? Math.min(100,Math.round((g.savedAmount||0)/g.total_amount*100)) : 0;
+      return `<div class="auc-goal">
+        <div class="aucg-title">${escapeHtml(g.goal_title||'未命名')}</div>
+        <div class="aucg-bar"><div class="aucg-fill" style="width:${pct}%"></div></div>
+        <div class="aucg-pct">${pct}%</div>
+        <div class="aucg-meta">${(g.checkins||[]).length} 次打卡</div>
+      </div>`;
+    }).join('') : '<div style="font-size:12px;color:#64748b;padding:4px;">暂无目标</div>';
+    return `<div class="adm-user-card">
+      <div class="auc-head">
+        <div class="auc-email">📧 ${escapeHtml(e)}</div>
+        <div class="auc-meta">注册于 ${new Date(acc.createdAt).toLocaleDateString('zh-CN')} · ${goals.length} 个目标</div>
+      </div>
+      <div class="auc-goals">${goalsHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// ════════ GOAL CRUD / SIDEBAR ════════
+function newGoal(){
+  activeGoalId = null;
+  // reset wizard inputs
+  document.getElementById('goalText').value='';
+  document.getElementById('goalAmount').value='';
+  document.getElementById('goalCount').value='';
+  document.getElementById('checkinAmt') && (document.getElementById('checkinAmt').value='');
+  state_selectedCat='';
+  document.querySelectorAll('.cat').forEach(c=>c.classList.remove('selected'));
+  selectUnit('week');
+  // reset commitment toggles to defaults
+  pendingCommit = { cooling:false, checkin:true, impulse:true };
+  syncCommitToggles();
+  renderSidebar();
+  showWizard(1);
+}
+
+function selectGoal(id){
+  activeGoalId = id;
+  const g = activeGoal();
+  renderSidebar();
+  if(!g){ showWizard(1); return; }
+  openDashboard();
+}
+
+function ringSVG(pct,color){
+  const r=15, c=2*Math.PI*r, off=c-(pct/100)*c;
+  return `<svg width="38" height="38" viewBox="0 0 38 38" style="transform:rotate(-90deg)">
+    <circle cx="19" cy="19" r="${r}" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="3.5"/>
+    <circle cx="19" cy="19" r="${r}" fill="none" stroke="${color}" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="${c.toFixed(2)}" stroke-dashoffset="${off.toFixed(2)}"/>
+  </svg>`;
+}
+
+const CAT_EMOJI = {'旅行/社交娱乐':'✈️','大额物品':'📱','应急备用金':'🛡️','备考/留学':'📚','毕业储备':'🎓'};
+function goalEmoji(g){ return CAT_EMOJI[g.category] || '🎯'; }
+
+function renderSidebar(){
+  const goals = getGoals();
+  const wrap = document.getElementById('goalTabs');
+  const tabsHtml = goals.map(g=>{
+    const pct = g.total_amount>0 ? Math.min(100,Math.round((g.savedAmount||0)/g.total_amount*100)) : 0;
+    const color = pct>=100?'#10b981':(g.id===activeGoalId?'#60a5fa':'#3b82f6');
+    return `<div class="goal-tab ${g.id===activeGoalId?'active':''}" onclick="selectGoal('${g.id}')">
+      <div class="gt-ring">${ringSVG(pct,color)}<div class="gt-emoji">${goalEmoji(g)}</div></div>
+      <div class="gt-info">
+        <div class="gt-title">${escapeHtml(g.goal_title||'未命名目标')}</div>
+        <div class="gt-meta">${pct}% · ${(g.checkins||[]).length}次打卡</div>
+      </div>
+    </div>`;
+  }).join('');
+  wrap.innerHTML = `<div class="sb-section-label">我的目标 (${goals.length})</div>${tabsHtml}<button class="sb-new" onclick="newGoal()">＋ 新建目标</button>`;
+}
+
+// ════════ WIZARD ════════
+let state_selectedCat = '';
+
+function showWizard(step){
+  ['wizStep1','wizStep2','wizStep3','dashWrap'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('wiz'+'Step'+step).style.display='block';
+  setStep(step);
+  document.getElementById('appMain').scrollTo(0,0);
+}
+function setStep(n){
+  for(let i=1;i<=3;i++){
+    const el=document.getElementById('step'+i); if(!el)continue;
+    el.classList.remove('active','done');
+    if(i<n) el.classList.add('done'); else if(i===n) el.classList.add('active');
+  }
+}
+function toggleCat(btn,cat){
+  document.querySelectorAll('.cat').forEach(c=>c.classList.remove('selected'));
+  if(state_selectedCat===cat){ state_selectedCat=''; }
+  else { btn.classList.add('selected'); state_selectedCat=cat; }
+}
+function selectUnit(u){
+  pendingUnit=u;
+  document.querySelectorAll('#unitToggle .unit-opt').forEach(o=>o.classList.toggle('active', o.dataset.unit===u));
+}
+
+// duration math
+function unitLabel(u){ return u==='day'?'天':u==='month'?'月':'周'; }
+function computeTargets(amount, count, unit){
+  const totalDays = unit==='day'? count : unit==='week'? count*7 : count*30;
+  const weekly = Math.max(1, Math.ceil(amount/(totalDays/7)));
+  const monthly = Math.max(1, Math.ceil(amount/(totalDays/30.42)));
+  const daily = Math.max(1, Math.ceil(amount/totalDays));
+  const perPeriod = Math.max(1, Math.ceil(amount/count));
+  return { totalDays, weekly, monthly, daily, perPeriod };
+}
+
+async function submitGoal(){
+  const text = document.getElementById('goalText').value.trim();
+  const amount = parseFloat(document.getElementById('goalAmount').value)||0;
+  const count = parseInt(document.getElementById('goalCount').value)||(pendingUnit==='day'?30:pendingUnit==='month'?3:12);
+  const unit = pendingUnit;
+  if(!text || !amount){ showToast('请填写目标描述和金额'); return; }
+
+  const btn=document.getElementById('submitBtn'), loading=document.getElementById('aiLoadingArea');
+  btn.disabled=true; btn.style.display='none'; loading.classList.add('show');
+  const statuses=['正在理解你的目标…','分析行为经济学原理…','生成个性化方案…','计算每周里程碑…'];
+  let si=0; const statusInterval=setInterval(()=>{ document.getElementById('aiStatus').textContent=statuses[si%statuses.length]; si++; },900);
+
+  const tg = computeTargets(amount, count, unit);
+  const ul = unitLabel(unit);
+
+  try{
+    const prompt = `你是GoalBank的AI财务规划助手，专门帮助中国大学生实现储蓄目标。用户输入了以下信息：
+
+目标描述：${text}
+目标金额：¥${amount}
+计划时长：${count}${ul}
+目标分类：${state_selectedCat||'未指定'}
+
+请用行为经济学原理（双曲折现、现时偏见、承诺装置、心理账户、损失厌恶等）分析，返回以下JSON格式（只返回JSON，不要其他内容）：
+{
+  "goal_title": "简洁的目标标题（10字以内）",
+  "weekly_target": ${tg.weekly},
+  "monthly_target": ${tg.monthly},
+  "principle_name": "最相关的行为经济学原理名称",
+  "principle_desc": "一句话解释这个原理如何应用",
+  "phase1": "起步阶段的心理状态描述和鼓励（2句话）",
+  "phase2": "中途阶段的心理状态描述和应对建议（2句话）",
+  "phase3": "冲刺阶段的心理状态描述和最终鼓励（2句话）",
+  "step1": "第一个具体行动步骤（一句话，今天就能做）",
+  "step2": "第二个具体行动步骤",
+  "step3": "第三个具体行动步骤",
+  "motivation": "一句针对这个具体目标的情感化激励语，提到具体的目标内容（不超过25字）"
+}`;
+    const response = await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:1000, messages:[{role:"user",content:prompt}] })
+    });
+    const data = await response.json();
+    clearInterval(statusInterval);
+    let rawText=''; if(data.content&&data.content[0]) rawText=data.content[0].text;
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    if(!jsonMatch) throw new Error('Invalid response');
+    const result = JSON.parse(jsonMatch[0]);
+    finalizeGoal(result, {text, amount, count, unit, tg});
+  }catch(err){
+    clearInterval(statusInterval);
+    const result = buildFallback(text, amount, count, unit, tg);
+    finalizeGoal(result, {text, amount, count, unit, tg});
+  }
+  loading.classList.remove('show'); btn.disabled=false; btn.style.display='block';
+}
+
+function buildFallback(text, amount, count, unit, tg){
+  const ul = unitLabel(unit);
+  return {
+    goal_title: state_selectedCat || text.slice(0,10),
+    principle_name:'双曲折现干预',
+    principle_desc:'把遥远的大目标拆解成每周的小目标，让存钱变得可执行',
+    phase1:`起步阶段：建立习惯最重要。每周存入 ¥${tg.weekly}，设置自动转账，让存钱成为反射动作而不是决定。`,
+    phase2:`中途阶段：这是最容易放弃的时候，热情会减退。请记住——你已经走了一半，放弃的成本比坚持更高。`,
+    phase3:`冲刺阶段：终点在望。把目标设成手机壁纸，让损失厌恶帮你冲过终点线。`,
+    step1:'立刻把目标金额单独存入一个专属账户，不要和零花钱混用',
+    step2:`在手机日历设置每${ul==='天'?'日':'周'}固定提醒：存入对应份额到目标账户`,
+    step3:'告诉一个朋友你的目标，利用社会承诺效应增强执行力',
+    motivation:`距离实现"${(state_selectedCat||text).slice(0,8)}"，你只需每天放弃 ${Math.round(tg.weekly/7)} 元的冲动消费。`,
+  };
+}
+
+function finalizeGoal(result, ctx){
+  const {text, amount, count, unit, tg} = ctx;
+  const plan = {
+    goal_title: result.goal_title || (state_selectedCat||text.slice(0,10)),
+    description: text,
+    category: state_selectedCat,
+    total_amount: amount,
+    count, unit,
+    weekly_target: result.weekly_target || tg.weekly,
+    monthly_target: result.monthly_target || tg.monthly,
+    daily_target: tg.daily,
+    per_period: tg.perPeriod,
+    total_days: tg.totalDays,
+    principle_name: result.principle_name, principle_desc: result.principle_desc,
+    phase1: result.phase1, phase2: result.phase2, phase3: result.phase3,
+    step1: result.step1, step2: result.step2, step3: result.step3,
+    motivation: result.motivation,
+  };
+
+  const goals = getGoals();
+  if(activeGoalId && goals.find(g=>g.id===activeGoalId)){
+    // editing the draft: preserve progress
+    const g = goals.find(x=>x.id===activeGoalId);
+    Object.assign(g, plan); g.lastUpdated=Date.now();
+  } else {
+    const newG = Object.assign({
+      id: 'g'+Date.now()+Math.floor(Math.random()*1000),
+      savedAmount:0, streak:0, checkins:[],
+      coolingEnabled:false, checkinEnabled:true, impulseEnabled:true,
+      comments:[], reactions:{}, createdAt:Date.now(), lastUpdated:Date.now()
+    }, plan);
+    goals.push(newG);
+    activeGoalId = newG.id;
+  }
+  commitGoals(goals);
+  renderSidebar();
+  renderResults(activeGoal());
+  showWizard(2);
+}
+
+function renderResults(r){
+  document.getElementById('resultGoalTitle').textContent = r.goal_title;
+  document.getElementById('rWeekly').textContent = '¥'+r.weekly_target;
+  // middle stat shows the chosen unit
+  document.getElementById('rDuration').textContent = r.count;
+  document.getElementById('rDurationLabel').textContent = unitLabel(r.unit)+'后实现';
+  document.getElementById('rMonthly').textContent = '¥'+r.monthly_target;
+  document.getElementById('principleTag').textContent = '🧠 ' + (r.principle_name||'') + ' · ' + (r.principle_desc||'');
+  document.getElementById('phase1Text').textContent = r.phase1||'';
+  document.getElementById('phase2Text').textContent = r.phase2||'';
+  document.getElementById('phase3Text').textContent = r.phase3||'';
+  document.getElementById('motivationBox').textContent = r.motivation||'';
+  document.getElementById('stepsList').innerHTML = [r.step1,r.step2,r.step3].filter(Boolean).map(s=>`<div class="step-item">${escapeHtml(s)}</div>`).join('');
+}
+
+// ════════ COMMITMENT TOGGLES (fixed: all toggle both ways) ════════
+function syncCommitToggles(){
+  const g = activeGoal();
+  const c = g ? {cooling:g.coolingEnabled, checkin:g.checkinEnabled, impulse:g.impulseEnabled} : {cooling:false,checkin:true,impulse:true};
+  ['cooling','checkin','impulse'].forEach(name=>{
+    document.getElementById(name+'-toggle').classList.toggle('on', c[name]);
+  });
+  document.getElementById('cooling-display').classList.toggle('show', c.cooling);
+}
+function toggleFeature(name){
+  const g = activeGoal(); if(!g) return;
+  const key = name+'Enabled';
+  updateActiveGoal(x=>{ x[key] = !x[key]; });
+  const on = activeGoal()[key];
+  document.getElementById(name+'-toggle').classList.toggle('on', on);
+  if(name==='cooling') document.getElementById('cooling-display').classList.toggle('show', on);
+}
+
+function startTracking(){
+  const g = activeGoal(); if(!g){ showToast('请先生成方案'); return; }
+  openDashboard();
+  setTimeout(()=>launchConfetti(),400);
+  showToast('🎉 目标启动成功！你的旅程开始了！');
+}
+
+// ════════ GLOBALS (dashboard interaction) ════════
+let selectedMood = null;
+let pendingCommit = { cooling:false, checkin:true, impulse:true };
+let cooldownTimer = null;
+let toastTimer = null;
+let pubSnap = null;
+
+// ════════ DATE HELPERS ════════
+function todayISO(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function fmtMD(d){ return (d.getMonth()+1)+'/'+d.getDate(); }
+function calcStreak(checkins){
+  const days=[...new Set((checkins||[]).map(c=>c.date))].sort();
+  if(!days.length) return 0;
+  let streak=1;
+  for(let i=days.length-1;i>0;i--){
+    const diff=Math.round((new Date(days[i])-new Date(days[i-1]))/86400000);
+    if(diff===1) streak++; else break;
+  }
+  return streak;
+}
+
+// ════════ DASHBOARD ════════
+function openDashboard(){
+  const g=activeGoal(); if(!g){ showWizard(1); return; }
+  ['wizStep1','wizStep2','wizStep3'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('dashWrap').style.display='block';
+  document.getElementById('dashGoalTitle').textContent=g.goal_title||'我的目标';
+  const ul=unitLabel(g.unit);
+  const perUnitAmt = g.unit==='day'?g.daily_target:g.unit==='month'?g.monthly_target:g.weekly_target;
+  document.getElementById('dashGoalSub').textContent='每'+ul+'存入 ¥'+perUnitAmt+' · 目标 ¥'+(g.total_amount||0).toLocaleString();
+  calRef=new Date();
+  selectedMood=null;
+  document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('checkinNote').value='';
+  document.getElementById('checkinAmt').value='';
+  updateProgress(); updatePhase(); renderSmartLinks(); renderCalendar(); renderLog();
+  document.getElementById('appMain').scrollTo(0,0);
+}
+
+function updateProgress(){
+  const g=activeGoal(); if(!g) return;
+  const saved=g.savedAmount||0, total=g.total_amount||0;
+  const pct= total>0?Math.min(100,Math.round(saved/total*100)):0;
+  const C=414.69;
+  document.getElementById('ringFill').style.strokeDashoffset=(C-(pct/100)*C).toFixed(2);
+  document.getElementById('ringPct').textContent=pct+'%';
+  document.getElementById('statSaved').textContent='¥'+saved.toLocaleString();
+  document.getElementById('statLeft').textContent='¥'+Math.max(0,total-saved).toLocaleString();
+  const ul=unitLabel(g.unit);
+  document.getElementById('statRemainLabel').textContent='剩余'+ul+'数';
+  const perUnitAmt = g.unit==='day'?g.daily_target:g.unit==='month'?g.monthly_target:g.weekly_target;
+  const remainUnits = perUnitAmt>0?Math.max(0,Math.ceil((total-saved)/perUnitAmt)):0;
+  document.getElementById('statRemain').textContent=remainUnits;
+  document.getElementById('streakDisplay').textContent='🔥 连续 '+(g.streak||0)+' 天';
+}
+
+function updatePhase(){
+  const g=activeGoal(); if(!g) return;
+  const saved=g.savedAmount||0,total=g.total_amount||0;
+  const pct=total>0?saved/total*100:0;
+  let color,label,msg;
+  if(pct>=100){ color='var(--green)'; label='已达成 🎉'; msg=g.phase3||'你做到了！把这份坚持带到下一个目标。'; }
+  else if(pct<33){ color='var(--blue)'; label='起步阶段'; msg=g.phase1||'保持热情，建立习惯，这是最重要的一步。'; }
+  else if(pct<66){ color='#8b5cf6'; label='中途阶段'; msg=g.phase2||'最容易放弃的时候，但你已经走了一半，坚持就是胜利。'; }
+  else { color='var(--green)'; label='冲刺阶段'; msg=g.phase3||'终点在望，把目标设成壁纸，冲过去！'; }
+  document.getElementById('phaseDot').style.background=color;
+  document.getElementById('phaseStageLabel').textContent=label;
+  document.getElementById('phaseMsgText').textContent=msg;
+}
+
+// ════════ SMART LINKS (turn plan into action) ════════
+function smartLinksFor(g){
+  const q = encodeURIComponent((g.description||g.goal_title||'').slice(0,40));
+  const T = {
+    '旅行/社交娱乐':[
+      {i:'🗺️',n:'高德地图',d:'规划路线 / 找景点',u:'https://www.amap.com/search?query='+q},
+      {i:'✈️',n:'携程机票',d:'比价订机票',u:'https://flights.ctrip.com/'},
+      {i:'🏨',n:'携程酒店',d:'提前看住宿',u:'https://hotels.ctrip.com/'},
+      {i:'🍜',n:'大众点评',d:'吃喝玩乐攻略',u:'https://www.dianping.com/'},
+    ],
+    '大额物品':[
+      {i:'🛒',n:'京东',d:'比价 / 看真机',u:'https://search.jd.com/Search?keyword='+q},
+      {i:'🛍️',n:'淘宝',d:'搜同款',u:'https://s.taobao.com/search?q='+q},
+      {i:'💰',n:'什么值得买',d:'蹲优惠 / 看历史价',u:'https://search.smzdm.com/?s='+q},
+      {i:'📦',n:'天猫',d:'官方旗舰店',u:'https://list.tmall.com/search_product.htm?q='+q},
+    ],
+    '备考/留学':[
+      {i:'📕',n:'小红书',d:'上岸 / 留学攻略',u:'https://www.xiaohongshu.com/search_result?keyword='+q},
+      {i:'❓',n:'知乎',d:'经验贴 / 答疑',u:'https://www.zhihu.com/search?type=content&q='+q},
+      {i:'🎬',n:'B站',d:'免费网课 / 资料',u:'https://search.bilibili.com/all?keyword='+q},
+      {i:'🗺️',n:'高德地图',d:'查考点 / 看学校',u:'https://www.amap.com/search?query='+q},
+    ],
+    '毕业储备':[
+      {i:'💼',n:'BOSS直聘',d:'看岗位 / 投简历',u:'https://www.zhipin.com/'},
+      {i:'🏠',n:'贝壳找房',d:'提前看租房',u:'https://www.ke.com/'},
+      {i:'📕',n:'小红书',d:'求职 / 租房攻略',u:'https://www.xiaohongshu.com/search_result?keyword='+q},
+      {i:'📄',n:'智联招聘',d:'行业薪资参考',u:'https://www.zhaopin.com/'},
+    ],
+    '应急备用金':[
+      {i:'📒',n:'随手记',d:'记账 / 看收支',u:'https://www.sui.com/'},
+      {i:'🏦',n:'货币基金科普',d:'让备用金生息',u:'https://www.zhihu.com/search?type=content&q=货币基金'},
+      {i:'🛡️',n:'应急资金配置',d:'存多少才够',u:'https://www.zhihu.com/search?type=content&q=应急资金应该存多少'},
+      {i:'💹',n:'国债逆回购',d:'低风险闲钱理财',u:'https://www.zhihu.com/search?type=content&q=国债逆回购'},
+    ],
+  };
+  return T[g.category] || [
+    {i:'🗺️',n:'高德地图',d:'规划 / 查询',u:'https://www.amap.com/search?query='+q},
+    {i:'🛍️',n:'淘宝',d:'搜一搜',u:'https://s.taobao.com/search?q='+q},
+    {i:'📕',n:'小红书',d:'攻略 / 灵感',u:'https://www.xiaohongshu.com/search_result?keyword='+q},
+    {i:'❓',n:'知乎',d:'经验 / 答疑',u:'https://www.zhihu.com/search?type=content&q='+q},
+  ];
+}
+function renderSmartLinks(){
+  const g=activeGoal(); if(!g) return;
+  const links=smartLinksFor(g);
+  document.getElementById('smartGrid').innerHTML=links.map(l=>`<a class="smart-link" href="${l.u}" target="_blank" rel="noopener"><div class="sl-icon">${l.i}</div><div class="sl-text"><div class="sl-name">${escapeHtml(l.n)}</div><div class="sl-desc">${escapeHtml(l.d)}</div></div></a>`).join('');
+  document.getElementById('smartNote').textContent='这些是按你的目标类型整理的快捷入口，点击会在新标签页打开对应平台。GoalBank 不会获取你的账号或交易信息，只是帮你把"想做的事"更快地安排上。';
+}
+
+// ════════ CHECK-IN ════════
+function selectMood(btn,emoji){
+  document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected'); selectedMood=emoji;
+}
+function doCheckin(){
+  const g=activeGoal(); if(!g){ showToast('请先选择一个目标'); return; }
+  if(!selectedMood){ showToast('先选一个今天的心情吧 🙂'); return; }
+  const today=todayISO();
+  if((g.checkins||[]).some(c=>c.date===today)){ showToast('今天已经打过卡啦，明天再来！'); return; }
+  const note=document.getElementById('checkinNote').value.trim();
+  const amt=parseFloat(document.getElementById('checkinAmt').value)||0;
+  updateActiveGoal(x=>{
+    x.checkins=x.checkins||[]; x.checkins.push({date:today,mood:selectedMood,note,amt});
+    if(amt>0) x.savedAmount=(x.savedAmount||0)+amt;
+    x.streak=calcStreak(x.checkins);
+  });
+  const g2=activeGoal();
+  document.getElementById('checkinNote').value=''; document.getElementById('checkinAmt').value='';
+  document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('selected')); selectedMood=null;
+  updateProgress(); updatePhase(); renderCalendar(); renderLog(); renderSidebar();
+  showQuote(g2.streak||1);
+  if(g2.streak>0 && g2.streak%7===0) setTimeout(()=>launchConfetti(),300);
+  if(g2.total_amount>0 && g2.savedAmount>=g2.total_amount) setTimeout(()=>{ launchConfetti(); showToast('🎉 目标达成！'); },500);
+}
+
+function renderLog(){
+  const g=activeGoal(); const el=document.getElementById('logList');
+  const checks=(g&&g.checkins)?[...g.checkins].reverse():[];
+  if(!checks.length){ el.innerHTML='<div class="log-empty">还没有记录，开始你的第一次打卡吧！</div>'; return; }
+  el.innerHTML=checks.map(c=>`<div class="log-item">
+    <div class="log-emoji">${c.mood||'✅'}</div>
+    <div class="log-info"><div class="log-note">${escapeHtml(c.note||'完成今日打卡')}</div><div class="log-date">${c.date}</div></div>
+    ${c.amt>0?`<div class="log-amt">+¥${Number(c.amt).toLocaleString()}</div>`:''}
+  </div>`).join('');
+}
+
+// ════════ CALENDAR ════════
+function renderCalendar(){
+  const g=activeGoal();
+  const byDate={}; (g&&g.checkins?g.checkins:[]).forEach(c=>{ byDate[c.date]=c.mood||'✅'; });
+  const y=calRef.getFullYear(), m=calRef.getMonth();
+  document.getElementById('calMonth').textContent = y+' / '+String(m+1).padStart(2,'0');
+  const first=new Date(y,m,1).getDay();
+  const days=new Date(y,m+1,0).getDate();
+  const tIso=todayISO();
+  let html='';
+  ['日','一','二','三','四','五','六'].forEach(w=>html+='<div class="cal-cell" style="background:transparent;color:#cbd5e1;font-weight:700;">'+w+'</div>');
+  for(let i=0;i<first;i++) html+='<div class="cal-cell empty"></div>';
+  for(let d=1;d<=days;d++){
+    const iso=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const has=byDate[iso]; const today=iso===tIso;
+    html+='<div class="cal-cell '+(has?'has':'')+(today?' today':'')+'">'+(has?'<div class="cal-emoji">'+has+'</div>':'')+'<div class="cal-day">'+d+'</div></div>';
+  }
+  document.getElementById('calGrid').innerHTML=html;
+}
+function calNav(dir){ calRef=new Date(calRef.getFullYear(), calRef.getMonth()+dir, 1); renderCalendar(); }
+
+// ════════ QUOTE (post check-in inspiration) ════════
+function showQuote(streak){
+  const q=QUOTES[Math.floor(Math.random()*QUOTES.length)];
+  const t=document.getElementById('qmText');
+  t.textContent=q.t; t.classList.toggle('en', !!q.en);
+  document.getElementById('qmAuthor').textContent='— '+q.a;
+  document.getElementById('qmStreak').textContent='🔥 连续 '+streak+' 天';
+  document.getElementById('quoteOverlay').classList.add('show');
+}
+function closeQuote(){ document.getElementById('quoteOverlay').classList.remove('show'); }
+
+// ════════ SAVINGS / WITHDRAW ════════
+function addSavings(){
+  const g=activeGoal(); if(!g) return;
+  const v=prompt('记录一笔存款金额（元）：');
+  if(v===null) return;
+  const amt=parseFloat(v); if(!amt||amt<=0){ showToast('请输入有效金额'); return; }
+  updateActiveGoal(x=>{ x.savedAmount=(x.savedAmount||0)+amt; });
+  updateProgress(); updatePhase(); renderSidebar();
+  const g2=activeGoal();
+  if(g2.total_amount>0 && g2.savedAmount>=g2.total_amount){ launchConfetti(); showToast('🎉 恭喜！目标达成！'); }
+  else showToast('✅ 已记录存款 ¥'+amt.toLocaleString());
+}
+function showWithdrawModal(){
+  const g=activeGoal(); if(!g) return;
+  const sub=document.getElementById('withdrawSub');
+  const disp=document.getElementById('cooldownDisplay');
+  const loss=document.getElementById('withdrawLoss');
+  const saved=g.savedAmount||0;
+  loss.textContent='取出后，你已存入的 ¥'+saved.toLocaleString()+' 进度将清零或倒退，需要额外时间才能追回。';
+  if(g.coolingEnabled){
+    sub.textContent='你已开启 48 小时冷静期承诺。取款申请将在以下倒计时结束后处理：';
+    disp.style.display='block';
+    startCooldown(48*3600);
+  } else {
+    sub.textContent='你没有开启冷静期承诺。确认现在就申请取款吗？';
+    disp.style.display='none';
+    clearInterval(cooldownTimer);
+  }
+  openModal('withdrawModal');
+}
+function startCooldown(totalSec){
+  clearInterval(cooldownTimer);
+  let s=totalSec;
+  const disp=document.getElementById('cooldownDisplay');
+  const tick=()=>{
+    const h=String(Math.floor(s/3600)).padStart(2,'0');
+    const m=String(Math.floor((s%3600)/60)).padStart(2,'0');
+    const sec=String(s%60).padStart(2,'0');
+    disp.textContent=h+':'+m+':'+sec;
+    if(s<=0){ clearInterval(cooldownTimer); return; }
+    s--;
+  };
+  tick(); cooldownTimer=setInterval(tick,1000);
+}
+function hideWithdrawModal(){ clearInterval(cooldownTimer); closeModal('withdrawModal'); }
+
+// ════════ EDIT / RESTART / DELETE ════════
+function openEditModal(){
+  const g=activeGoal(); if(!g) return;
+  document.getElementById('editTitle').value=g.goal_title||'';
+  document.getElementById('editAmount').value=g.total_amount||0;
+  document.getElementById('editCount').value=g.count||1;
+  selectEditUnit(g.unit||'week');
+  openModal('editModal');
+}
+function selectEditUnit(u){
+  editUnit=u;
+  document.querySelectorAll('#editUnitToggle .unit-opt').forEach(o=>o.classList.toggle('active',o.dataset.unit===u));
+}
+function saveEdit(){
+  const g=activeGoal(); if(!g) return;
+  const title=document.getElementById('editTitle').value.trim();
+  const amount=parseFloat(document.getElementById('editAmount').value)||0;
+  const count=parseInt(document.getElementById('editCount').value)||1;
+  if(!title||!amount){ showToast('标题和金额不能为空'); return; }
+  const tg=computeTargets(amount,count,editUnit);
+  updateActiveGoal(x=>{
+    x.goal_title=title; x.total_amount=amount; x.count=count; x.unit=editUnit;
+    x.weekly_target=tg.weekly; x.monthly_target=tg.monthly; x.daily_target=tg.daily; x.per_period=tg.perPeriod; x.total_days=tg.totalDays;
+  });
+  closeModal('editModal'); renderSidebar(); openDashboard(); showToast('✅ 计划已更新，进度与打卡都已保留');
+}
+function restartGoal(){
+  const g=activeGoal(); if(!g) return;
+  if(!confirm('重新开始会清空这个目标的存款进度和打卡记录（目标设定本身保留）。确定吗？')) return;
+  updateActiveGoal(x=>{ x.savedAmount=0; x.streak=0; x.checkins=[]; });
+  renderSidebar(); openDashboard(); showToast('🔄 已重置，全新的开始！');
+}
+function deleteGoal(){
+  const g=activeGoal(); if(!g) return;
+  if(!confirm('确定删除「'+(g.goal_title||'此目标')+'」？此操作无法撤销。')) return;
+  const goals=getGoals().filter(x=>x.id!==g.id);
+  commitGoals(goals);
+  activeGoalId = goals[0]?goals[0].id:null;
+  renderSidebar();
+  if(activeGoalId) openDashboard(); else newGoal();
+  showToast('🗑️ 目标已删除');
+}
+
+// ════════ SHARE (public link, percentage only) ════════
+function b64e(s){ return btoa(unescape(encodeURIComponent(s))); }
+function b64d(s){ return decodeURIComponent(escape(atob(s))); }
+function buildSnapshot(g){
+  const total=g.total_amount||0, saved=g.savedAmount||0;
+  const pct= total>0?Math.min(100,Math.round(saved/total*100)):0;
+  const who = session ? session.split('@')[0] : '一位朋友';
+  return { t:g.goal_title||'我的目标', p:pct, s:g.streak||0, w:who, id:g.id };
+}
+function openShareModal(){
+  const g=activeGoal(); if(!g) return;
+  const snap=buildSnapshot(g);
+  const url=location.origin+location.pathname+'#share='+b64e(JSON.stringify(snap));
+  document.getElementById('shareLink').value=url;
+  document.getElementById('sharePreview').innerHTML='朋友打开后会看到：<strong>'+escapeHtml(snap.w)+'</strong> 正在完成「'+escapeHtml(snap.t)+'」，进度 <strong>'+snap.p+'%</strong>，连续打卡 '+snap.s+' 天。<br><span style="color:#94a3b8;">链接里不包含任何金额数字。</span>';
+  openModal('shareModal');
+}
+function copyShareLink(){
+  const inp=document.getElementById('shareLink'); inp.select(); inp.setSelectionRange(0,99999);
+  const ok=()=>showToast('🔗 链接已复制，去分享给朋友吧！');
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(inp.value).then(ok).catch(()=>{ try{document.execCommand('copy');ok();}catch(e){showToast('复制失败，请手动复制');} }); }
+  else { try{document.execCommand('copy');ok();}catch(e){showToast('复制失败，请手动复制');} }
+}
+
+// social storage (per shared goal id; same-browser persistence)
+function socialKey(id){ return 'gb_social_'+id; }
+function loadSocial(id){ try{ return JSON.parse(localStorage.getItem(socialKey(id))||'{"comments":[],"reactions":{}}'); }catch(e){ return {comments:[],reactions:{}}; } }
+function saveSocial(id,data){ localStorage.setItem(socialKey(id),JSON.stringify(data)); }
+
+const REACTIONS=[['👏','加油'],['❤️','喜欢'],['🔥','厉害'],['💪','坚持'],['🎉','为你开心']];
+function renderPublicView(snap){
+  pubSnap=snap;
+  showView('v-share');
+  document.getElementById('pubWho').textContent=(snap.w||'一位朋友')+' 正在努力实现';
+  document.getElementById('pubGoal').textContent=snap.t||'目标';
+  const C=464.96;
+  document.getElementById('pubRing').style.strokeDashoffset=(C-(snap.p/100)*C).toFixed(2);
+  document.getElementById('pubPct').textContent=snap.p+'%';
+  document.getElementById('pubStreak').textContent='🔥 连续打卡 '+snap.s+' 天';
+  renderReactions(); renderComments();
+}
+function renderReactions(){
+  if(!pubSnap) return;
+  const data=loadSocial(pubSnap.id);
+  document.getElementById('reactionRow').innerHTML=REACTIONS.map(r=>`<button class="react-btn" onclick="addReaction('${r[0]}')">${r[0]}<span class="react-count">${data.reactions[r[0]]||0}</span></button>`).join('');
+}
+function addReaction(e){
+  if(!pubSnap) return;
+  const data=loadSocial(pubSnap.id); data.reactions[e]=(data.reactions[e]||0)+1; saveSocial(pubSnap.id,data);
+  renderReactions(); showToast(e+' 已送出！');
+}
+function renderComments(){
+  if(!pubSnap) return;
+  const data=loadSocial(pubSnap.id); const el=document.getElementById('commentList');
+  if(!data.comments.length){ el.innerHTML='<div class="pub-empty">还没有人留言，来做第一个鼓励 TA 的人吧！</div>'; return; }
+  el.innerHTML=[...data.comments].reverse().map(c=>`<div class="comment-item"><div class="ci-head"><div class="ci-name">${escapeHtml(c.name)}</div><div class="ci-date">${c.date}</div></div><div class="ci-text">${escapeHtml(c.text)}</div></div>`).join('');
+}
+function postComment(){
+  if(!pubSnap) return;
+  const name=document.getElementById('commentName').value.trim()||'匿名朋友';
+  const text=document.getElementById('commentText').value.trim();
+  if(!text){ showToast('写点什么再发送吧'); return; }
+  const data=loadSocial(pubSnap.id); data.comments.push({name,text,date:todayISO()}); saveSocial(pubSnap.id,data);
+  document.getElementById('commentText').value='';
+  renderComments(); showToast('💬 鼓励已送达！');
+}
+function shareCtaToApp(){ location.hash=''; location.reload(); }
+
+// ════════ PDF CALENDAR PLAN ════════
+function buildSchedule(g){
+  const total=g.total_amount||0;
+  let unit=g.unit, count=g.count||1;
+  if(unit==='day' && count>53){ unit='week'; count=Math.ceil((g.count||1)/7); }
+  let perAmt, unitWord;
+  if(unit==='day'){ perAmt=g.daily_target; unitWord='天'; }
+  else if(unit==='month'){ perAmt=g.monthly_target; unitWord='月'; }
+  else { perAmt=g.weekly_target; unitWord='周'; }
+  const start=new Date(g.createdAt||Date.now());
+  const rows=[]; let cum=0;
+  for(let i=0;i<count;i++){
+    let dateLabel;
+    if(unitWord==='天'){ const d=new Date(start); d.setDate(d.getDate()+i); dateLabel=fmtMD(d); }
+    else if(unitWord==='周'){ const a=new Date(start); a.setDate(a.getDate()+i*7); const b=new Date(a); b.setDate(b.getDate()+6); dateLabel=fmtMD(a)+' – '+fmtMD(b); }
+    else { const d=new Date(start); d.setMonth(d.getMonth()+i); dateLabel=d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0'); }
+    let amt=perAmt; cum+=amt; if(cum>total){ amt-=(cum-total); cum=total; }
+    if(amt<0) amt=0;
+    rows.push({idx:i+1,date:dateLabel,amt,cum});
+    if(cum>=total) break;
+  }
+  return {unitWord,rows};
+}
+function buildPlanHTML(g){
+  const sch=buildSchedule(g);
+  const total=g.total_amount||0;
+  const perUnitAmt=(g.unit==='day'?g.daily_target:g.unit==='month'?g.monthly_target:g.weekly_target);
+  const rowsHtml=sch.rows.map(r=>`<tr><td>第 ${r.idx} ${sch.unitWord}</td><td>${r.date}</td><td>¥${r.amt.toLocaleString()}</td><td>¥${r.cum.toLocaleString()}</td><td class="pdf-check"><span class="pdf-box"></span></td></tr>`).join('');
+  return `
+    <div class="pdf-brand">● GOALBANK · 存钱计划日历表</div>
+    <div class="pdf-h">${escapeHtml(g.goal_title||'我的存钱计划')}</div>
+    <div style="font-size:13px;color:#64748b;margin-bottom:24px;">${escapeHtml(g.description||'')}</div>
+    <div class="pdf-summary">
+      <div class="pdf-sum"><div class="pdf-sum-num">¥${total.toLocaleString()}</div><div class="pdf-sum-label">目标金额</div></div>
+      <div class="pdf-sum"><div class="pdf-sum-num">${g.count}${unitLabel(g.unit)}</div><div class="pdf-sum-label">计划时长</div></div>
+      <div class="pdf-sum"><div class="pdf-sum-num">¥${Number(perUnitAmt).toLocaleString()}</div><div class="pdf-sum-label">每${unitLabel(g.unit)}存入</div></div>
+      <div class="pdf-sum"><div class="pdf-sum-num">${sch.rows.length}</div><div class="pdf-sum-label">总期数</div></div>
+    </div>
+    <table class="pdf-table"><thead><tr><th>期数</th><th>时间安排</th><th>本期存入</th><th>累计</th><th>打卡</th></tr></thead><tbody>${rowsHtml}</tbody></table>
+    <div class="pdf-foot">「${escapeHtml(g.motivation||'千里之行，始于足下。每一笔都算数。')}」</div>
+    <div class="pdf-note">GoalBank · 把大目标拆成可执行的小步骤 · 打印出来贴在墙上，每完成一期就打个勾 ✓</div>
+  `;
+}
+async function downloadPDF(){
+  const g=activeGoal(); if(!g){ showToast('没有可导出的目标'); return; }
+  if(!window.jspdf || !window.html2canvas){ showToast('PDF 组件未加载，请检查网络后重试'); return; }
+  showToast('正在生成 PDF 日历…');
+  const stage=document.getElementById('pdfStage');
+  stage.innerHTML=buildPlanHTML(g);
+  if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} }
+  await new Promise(r=>setTimeout(r,150));
+  try{
+    const canvas=await html2canvas(stage,{scale:2,backgroundColor:'#ffffff',useCORS:true,windowWidth:stage.scrollWidth});
+    const jsPDF=window.jspdf.jsPDF;
+    const pdf=new jsPDF('p','mm','a4');
+    const pw=210, ph=297;
+    const imgH=canvas.height*pw/canvas.width;
+    const img=canvas.toDataURL('image/jpeg',0.92);
+    let heightLeft=imgH, pos=0;
+    pdf.addImage(img,'JPEG',0,pos,pw,imgH);
+    heightLeft-=ph;
+    while(heightLeft>0){ pos=heightLeft-imgH; pdf.addPage(); pdf.addImage(img,'JPEG',0,pos,pw,imgH); heightLeft-=ph; }
+    pdf.save('GoalBank-'+(g.goal_title||'存钱计划')+'.pdf');
+    showToast('✅ PDF 日历已生成！');
+  }catch(e){ console.error(e); showToast('PDF 生成失败，请重试'); }
+  stage.innerHTML='';
+}
+
+// ════════ UI HELPERS ════════
+function launchConfetti(){
+  const wrap=document.getElementById('confetti');
+  const colors=['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444','#ec4899','#60a5fa'];
+  for(let i=0;i<90;i++){
+    const p=document.createElement('div'); p.className='confetti-piece';
+    p.style.left=Math.random()*100+'%';
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.top=(-10-Math.random()*30)+'px';
+    const dur=2.4+Math.random()*1.6;
+    p.style.animationDuration=dur+'s';
+    p.style.animationDelay=(Math.random()*0.35)+'s';
+    if(Math.random()>0.5) p.style.borderRadius='50%';
+    wrap.appendChild(p);
+    setTimeout(()=>p.remove(),(dur+0.6)*1000);
+  }
+}
+function showToast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2600);
+}
+function openModal(id){ const el=document.getElementById(id); if(el) el.classList.add('show'); }
+function closeModal(id){ const el=document.getElementById(id); if(el) el.classList.remove('show'); }
+
+// ════════ INIT / ROUTING ════════
+function init(){
+  const h=location.hash||'';
+  if(h.indexOf('#share=')===0){
+    try{ const snap=JSON.parse(b64d(h.slice(7))); renderPublicView(snap); return; }catch(e){ /* fall through to normal */ }
+  }
+  session=localStorage.getItem('gb_session')||null;
+  if(session && loadAccounts()[session]){ openApp(); }
+  else { session=null; showView('v-hero'); }
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+
+</script>
+</body>
+</html>
